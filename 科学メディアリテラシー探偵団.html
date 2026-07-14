@@ -1,0 +1,1825 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>科学メディアリテラシー探偵団</title>
+<style>
+:root{
+  --bg:#eef2f7; --ink:#1f2937; --sub:#6b7280; --line:#e5e7eb;
+  --accent:#4f46e5; --accent2:#db2777;
+  --what:#ef4444; --who:#34d399; --how:#fbbf24;
+  --purple:#7c3aed;
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+body{
+  font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic",Meiryo,sans-serif;
+  background:linear-gradient(160deg,#dbeafe,#fce7f3); color:var(--ink); min-height:100vh;
+}
+button{font-family:inherit;}
+/* ---------- header ---------- */
+#hdr{
+  position:sticky; top:0; z-index:50; background:linear-gradient(90deg,#4f46e5,#7c3aed);
+  color:#fff; display:flex; align-items:center; gap:10px; padding:10px 16px; flex-wrap:wrap;
+}
+#hdr .logo{font-size:22px;}
+#hdr .ttl{font-weight:800; font-size:15px; flex:1; min-width:180px;}
+#hdr .score{background:rgba(255,255,255,.22); border-radius:999px; padding:5px 14px; font-weight:800; font-size:13px; white-space:nowrap;}
+#hdr nav{display:flex; gap:6px;}
+#hdr nav button{
+  background:rgba(255,255,255,.15); color:#fff; border:none; border-radius:10px;
+  padding:7px 12px; font-size:13px; font-weight:700; cursor:pointer;
+}
+#hdr nav button.on{background:#fff; color:var(--accent);}
+#main{max-width:1160px; margin:0 auto; padding:18px 14px 60px;}
+/* ---------- cards ---------- */
+.card{background:#fff; border-radius:18px; padding:20px; margin-bottom:16px; box-shadow:0 3px 12px rgba(79,70,229,.09);}
+.h1{font-size:22px; font-weight:800; line-height:1.5;}
+.h2{font-size:16px; font-weight:800; margin-bottom:8px;}
+.small{font-size:12.5px; color:var(--sub); line-height:1.8;}
+.btn{
+  display:inline-block; background:var(--accent); color:#fff; border:none; border-radius:12px;
+  padding:12px 20px; font-size:15px; font-weight:800; cursor:pointer; text-align:center;
+  transition:transform .1s;
+}
+.btn:active{transform:scale(.97);}
+.btn.pink{background:var(--accent2);}
+.btn.ghost{background:#eef2ff; color:var(--accent);}
+.btn.wide{display:block; width:100%;}
+.menu-item{display:flex; align-items:center; gap:16px; cursor:pointer;}
+.menu-item .mi{font-size:38px; width:60px; height:60px; display:flex; align-items:center; justify-content:center; background:#eef2ff; border-radius:16px; flex-shrink:0;}
+.menu-item .mt{font-size:17px; font-weight:800;}
+.menu-item .md{font-size:12.5px; color:var(--sub); margin-top:3px; line-height:1.7;}
+.menu-item .arrow{margin-left:auto; color:var(--sub); font-size:20px;}
+.newscard{display:flex; align-items:center; gap:14px; cursor:pointer;}
+.newscard .ni{font-size:32px; width:54px; height:54px; display:flex; align-items:center; justify-content:center; background:#f1f5f9; border-radius:14px; flex-shrink:0;}
+.newscard .nt{font-weight:800; font-size:15px;}
+.newscard .bulbs{display:flex; gap:3px; margin-top:5px;}
+.tagline{display:inline-block; font-size:10.5px; font-weight:800; border-radius:6px; padding:2px 8px; margin-right:6px; vertical-align:middle;}
+.tagline.tate{background:#dbeafe; color:#1d4ed8;}
+.tagline.yoko{background:#fce7f3; color:#be185d;}
+/* ---------- stage layout ---------- */
+.stagewrap{display:flex; gap:18px; align-items:flex-start; justify-content:center;}
+.phonecol{flex:0 1 440px; min-width:0;}
+.banner{background:#fff7ed; border:2px dashed #fdba74; border-radius:14px; padding:10px 14px; font-size:13px; font-weight:700; line-height:1.8; margin-bottom:10px;}
+/* ---------- phone ---------- */
+.phone{background:#111; border-radius:34px; padding:10px 10px 16px; box-shadow:0 10px 30px rgba(0,0,0,.3);}
+.bezel{height:44px; display:flex; align-items:center; justify-content:center; gap:8px;}
+.pbody{background:#fff; border-radius:22px; overflow:hidden; display:flex; flex-direction:column; height:min(72vh,760px); min-height:480px;}
+.ptabs{display:flex; background:#d7dbe0; padding:6px 6px 0; gap:2px; overflow-x:auto; flex-shrink:0;}
+.ptab{background:#e8eaee; border:none; border-radius:10px 10px 0 0; padding:8px 14px; font-size:12.5px; font-weight:700; color:#555; cursor:pointer; white-space:nowrap; max-width:130px; overflow:hidden; text-overflow:ellipsis;}
+.ptab.on{background:#fff; color:#111;}
+.pscreen{flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; background:#fff;}
+/* ---------- SNS content ---------- */
+.sns{font-size:14.5px; line-height:1.9;}
+.sns .authrow{display:flex; align-items:center; gap:10px; padding:12px 14px; border-bottom:1.5px solid #222;}
+.sns .authrow .av{width:40px; height:40px; border-radius:50%; border:2.5px solid #222; display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0; background:#fff;}
+.sns .authrow .an{font-size:17px; font-weight:800;}
+.sns .authrow .follow{margin-left:auto; border:1.5px solid #7dd3fc; color:#38bdf8; border-radius:8px; padding:3px 12px; font-size:12px; font-weight:700; background:#fff;}
+.sns .authrow .dots{color:#333; font-weight:800; letter-spacing:2px;}
+.sns .sec{padding:12px 14px; border-bottom:1.5px solid #222;}
+.sns .title{font-size:17px; font-weight:800; line-height:1.7;}
+.sns .date{text-align:right; font-size:12px; color:#444;}
+.plink{color:var(--purple); font-weight:800; cursor:pointer; text-decoration:none;}
+a.plink{text-decoration:underline;}
+.morelink{color:var(--purple); font-weight:800; cursor:pointer; text-decoration:underline;}
+.statsrow{padding:10px 14px; border-bottom:1.5px solid #222;}
+.statsrow .icons{font-size:20px; letter-spacing:14px; color:#111;}
+.statsrow .nums{font-size:16px; font-weight:700; margin-top:4px; display:flex; gap:26px;}
+.cmt{display:flex; gap:10px; padding:10px 14px; border-bottom:1px solid #444;}
+.cmt .av{width:34px; height:34px; border-radius:50%; border:2px solid #222; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0;}
+.cmt .cn{color:#3b6ea5; font-weight:700; font-size:13.5px;}
+.cmt .ct{font-size:13.5px; line-height:1.8;}
+.endrow{padding:16px 14px 26px; text-align:right;}
+.endrow button{background:#fff; border:2.5px solid #111; border-radius:12px; padding:8px 16px; font-size:15px; font-weight:800; cursor:pointer;}
+.paperbox{border:1.5px solid #999; border-radius:8px; margin:10px 0; padding:10px; background:#fdfdfd; font-size:12px; line-height:1.8;}
+.paperbox .ptag{display:inline-block; background:#f4978e; color:#7f1d1d; font-size:10.5px; font-weight:800; padding:2px 10px; border-radius:3px;}
+.paperbox h4{font-size:13.5px; text-align:center; margin:8px 0 2px; line-height:1.7;}
+.paperbox .pauth{text-align:center; color:#444;}
+.paperbox .pen{text-align:center; font-size:10.5px; color:#555;}
+.notebox{display:block; border:2.5px solid #888; border-radius:14px; margin:12px 0; padding:12px; font-size:13px; line-height:1.9; background:#fafafa;}
+.notebox .nb-h{color:#555; font-size:12px; margin-bottom:6px;}
+.photo{display:block; position:relative; margin:10px 0;}
+.photo img{width:100%; border-radius:10px; display:block;}
+.graphbox{display:block; border:1.5px solid #7dd3fc; border-radius:10px; padding:6px; margin:10px 0; position:relative;}
+.srcpage{padding:16px 14px 30px; font-size:14.5px; line-height:2;}
+.srcpage .site{ text-align:right; font-size:12.5px; color:#333; font-weight:700; margin-bottom:8px;}
+.srcpage h3{font-size:16.5px; line-height:1.7; margin-bottom:8px; text-decoration:underline;}
+.srcpage h3.ctr{text-align:center; text-decoration:none;}
+.srcpage .sh{font-weight:800; text-align:center; margin-top:10px;}
+.govlogo{display:flex; align-items:center; gap:10px; margin-bottom:12px;}
+.govlogo .gl{font-size:34px;}
+.govlogo .gt{font-weight:800; font-size:20px;}
+.govlogo .ge{font-size:10.5px; color:#555;}
+.wikilogo{background:#e0f2fe; color:#0369a1; font-weight:800; display:inline-block; padding:6px 14px; border-radius:8px; margin-bottom:10px; font-size:14px;}
+.searchhead{display:flex; align-items:center; gap:10px; padding:12px 14px; background:#f8fafc; border-bottom:1px solid var(--line);}
+.searchhead .slogo{font-weight:900; font-size:20px;}
+.searchhead .slogo span:nth-child(1){color:#4285f4;}.searchhead .slogo span:nth-child(2){color:#ea4335;}.searchhead .slogo span:nth-child(3){color:#fbbc05;}.searchhead .slogo span:nth-child(4){color:#34a853;}.searchhead .slogo span:nth-child(5){color:#ea4335;}.searchhead .slogo span:nth-child(6){color:#4285f4;}
+.searchhead .sbox{flex:1; border:1.5px solid #999; border-radius:999px; padding:6px 14px; font-size:13px; color:#333; background:#fff;}
+.sresult{padding:14px; border-bottom:1px solid var(--line);}
+.sresult .rs{display:flex; align-items:center; gap:8px; font-size:12px; color:#333;}
+.sresult .rs .rico{width:26px; height:26px; border-radius:50%; background:#f1f5f9; display:flex; align-items:center; justify-content:center; font-size:14px;}
+.sresult .rurl{color:#5f6368; font-size:11px;}
+.sresult .rt{font-size:15px; font-weight:700; margin-top:4px; line-height:1.6;}
+.sresult .rt.plink{display:block;}
+.sresult .rsn{font-size:12.5px; color:#4b5563; margin-top:3px; line-height:1.7;}
+/* ---------- bulbs ---------- */
+.bslot{display:inline-block; width:26px; height:34px; vertical-align:middle; position:relative;}
+.bslot svg{width:100%; height:100%; display:block;}
+.bslot.clickable{cursor:pointer;}
+.bslot.hidden-b{visibility:hidden;}
+.bslot.pop{animation:bpop .5s ease;}
+@keyframes bpop{0%{transform:scale(0);}70%{transform:scale(1.4);}100%{transform:scale(1);}}
+.bezel .bslot{width:30px; height:40px;}
+.photo .bslot.overlay{position:absolute; top:8px; right:8px; width:30px; height:40px;}
+.bulb-legend{display:flex; gap:2px;}
+.bulb-legend .bslot{width:20px; height:27px;}
+/* ---------- context menu ---------- */
+#ctxmenu{position:fixed; z-index:200; background:#e5e7eb; border:1px solid #9ca3af; box-shadow:0 4px 14px rgba(0,0,0,.3); border-radius:4px; display:none; min-width:220px;}
+#ctxmenu button{display:block; width:100%; text-align:left; background:none; border:none; padding:10px 14px; font-size:13.5px; font-weight:700; cursor:pointer;}
+#ctxmenu button:first-child{border-bottom:1.5px solid #6b7280;}
+#ctxmenu button:hover{background:#d1d5db;}
+/* ---------- quiz panel ---------- */
+.qpanel{flex:0 1 480px; position:sticky; top:70px; max-height:calc(100vh - 90px); overflow-y:auto; border:3px solid #e8895b; border-radius:20px; background:#fff; padding:18px; display:none;}
+.qpanel.show{display:block;}
+.qpanel .qhead{text-align:center; font-size:17px; font-weight:800; text-decoration:underline; margin-bottom:6px;}
+.qpanel .talk{background:#eef2ff; border-radius:10px; padding:8px 12px; font-size:12px; font-weight:700; color:#4338ca; margin-bottom:10px; line-height:1.7;}
+.qpanel .qq{display:flex; gap:8px; font-size:15px; font-weight:800; line-height:1.9; margin-bottom:14px;}
+.qpanel .qq .fing{flex-shrink:0;}
+.ynrow{display:flex; gap:10px; justify-content:center; flex-wrap:wrap;}
+.ynrow button{background:#6b7280; color:#fff; border:none; border-radius:8px; padding:10px 22px; font-size:15px; font-weight:800; cursor:pointer;}
+.ynrow button:hover{background:#4b5563;}
+.fbbox{border:2.5px solid #e8895b; border-radius:16px; padding:14px; margin-top:14px;}
+.fbbox .fbtitle{text-align:center; font-weight:800; font-size:16px; text-decoration:underline; margin-bottom:8px;}
+.fbbox .fbtitle.good{color:#059669;}
+.fbbox .fbtitle.bad{color:#dc2626;}
+.fbbox .kh{text-align:center; font-weight:800; font-size:15px; margin:6px 0;}
+.fbbox .ktext{font-size:14px; line-height:2; margin-bottom:10px; white-space:pre-line;}
+.fbbox img{width:100%; border-radius:10px; display:block; margin-top:10px;}
+.chalbtn{display:block; margin:14px auto 0; background:linear-gradient(90deg,#f59e0b,#f97316); color:#fff; border:none; border-radius:999px; padding:11px 26px; font-size:15px; font-weight:800; cursor:pointer;}
+.chalbox{margin-top:14px;}
+.chalbox .chq{font-size:14.5px; font-weight:800; line-height:1.9; margin-bottom:10px; display:flex; gap:8px;}
+.chalbox .cc{display:block; width:100%; text-align:left; background:#fff; border:2.5px solid #111; border-radius:10px; padding:10px 14px; font-size:14px; font-weight:700; margin-bottom:8px; cursor:pointer; line-height:1.6;}
+.chalbox .cc.sel-wrong{background:#9ca3af; color:#fff; border-color:#9ca3af;}
+.chalbox .cc.sel-right{background:#d1fae5; border-color:#059669;}
+.chalbox .cjudge{text-align:center; font-size:16px; font-weight:800; margin:10px 0;}
+.closebtn{display:block; margin:14px auto 0; background:#374151; color:#fff; border:none; border-radius:10px; padding:10px 30px; font-size:14px; font-weight:800; cursor:pointer;}
+/* panel overlay on narrow screens */
+@media (max-width:919px){
+  .stagewrap{flex-direction:column; align-items:stretch;}
+  .phonecol{flex:1 1 auto; max-width:480px; margin:0 auto; width:100%;}
+  .qpanel{position:fixed; left:50%; transform:translateX(-50%); bottom:0; top:auto; width:100%; max-width:520px;
+    max-height:72vh; border-radius:20px 20px 0 0; z-index:120; box-shadow:0 -8px 30px rgba(0,0,0,.35);}
+}
+/* ---------- zukan ---------- */
+.zsec{margin-bottom:18px;}
+.zsec .zhead{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:10px;}
+.zsec .zhead .zt{font-size:17px; font-weight:800;}
+.zsec .zhead .zscore{margin-left:auto; background:#f1f5f9; border-radius:999px; padding:5px 14px; font-weight:800; font-size:13px;}
+.zgrid{display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:10px;}
+.zcard{background:#fff; border-radius:14px; padding:12px; cursor:pointer; box-shadow:0 2px 8px rgba(79,70,229,.08); display:flex; align-items:center; gap:10px;}
+.zcard .zn{font-size:13px; font-weight:800; line-height:1.5;}
+.zcard .zs{font-size:11px; color:var(--sub); margin-top:2px;}
+/* ---------- modal / toast ---------- */
+#modal-root{position:fixed; inset:0; display:none; z-index:300;}
+#modal-root.show{display:flex; align-items:center; justify-content:center;}
+.mback{position:absolute; inset:0; background:rgba(15,23,42,.66);}
+.mbox{position:relative; background:#fff; border-radius:18px; width:92%; max-width:480px; max-height:88vh; overflow-y:auto; padding:20px; z-index:2;}
+.mbox img{width:100%; border-radius:10px; display:block; margin-top:10px;}
+.mclose{position:sticky; top:0; float:right; background:#1f2937; color:#fff; border:none; border-radius:999px; width:34px; height:34px; font-size:15px; cursor:pointer; z-index:3;}
+#toast{position:fixed; left:50%; transform:translateX(-50%); bottom:30px; background:#1f2937; color:#fff; border-radius:999px; padding:11px 22px; font-size:13.5px; font-weight:700; z-index:400; opacity:0; transition:opacity .3s; pointer-events:none; max-width:90%; text-align:center;}
+#toast.show{opacity:1;}
+table.logt{width:100%; border-collapse:collapse; font-size:12.5px;}
+table.logt th, table.logt td{border-bottom:1px solid var(--line); padding:7px 4px; text-align:left;}
+table.logt th{color:var(--sub); font-weight:700; font-size:11.5px;}
+input[type=text]{border:2px solid var(--line); border-radius:10px; padding:10px; font-size:15px; width:100%;}
+.qprog{display:flex; gap:5px; margin-bottom:14px;}
+.qprog i{flex:1; height:6px; border-radius:3px; background:#e0e7ff;}
+.qprog i.done{background:var(--accent);}
+.choice4{display:block; width:100%; text-align:left; background:#fff; border:2px solid var(--line); border-radius:12px; padding:12px 14px; font-size:14px; font-weight:700; margin-bottom:8px; cursor:pointer; line-height:1.6;}
+.choice4.correct{border-color:#059669; background:#ecfdf5;}
+.choice4.wrong{border-color:#dc2626; background:#fef2f2;}
+</style>
+</head>
+<body>
+<header id="hdr">
+  <span class="logo">🕵️</span>
+  <div class="ttl">科学メディアリテラシー探偵団</div>
+  <div class="score" id="scorebox">⭐ 0点</div>
+  <nav>
+    <button id="nav-home" onclick="go('home')">🏠 ホーム</button>
+    <button id="nav-zukan" onclick="go('zukan')">📖 図鑑</button>
+    <button id="nav-log" onclick="go('log')">📊 きろく</button>
+  </nav>
+</header>
+<main id="main"></main>
+<div id="ctxmenu"></div>
+<div id="modal-root"></div>
+<div id="toast"></div>
+
+<script>
+/* =====================================================================
+   科学メディアリテラシー探偵団
+   （縦読み・横読み × 電球チェックポイント × 漫画 × クイズ）
+   元資料：アプリイメージ.pptx ／ 各教材に埋め込まれた信頼性評価規準.xlsx ／ pic フォルダ
+   ===================================================================== */
+const PREPOST_ENABLED = false;     /* ←プレポストテストの有無（true=あり／false=なし） */
+const PIC = "pic/";
+
+/* ---------------- 分類（電球の色） ---------------- */
+const CATS = {
+  what:{label:"What", color:"#ef4444", light:"#fca5a5", q:"研究の内容は確かかな？", desc:"研究内容をチェック"},
+  who: {label:"Who",  color:"#34d399", light:"#a7f3d0", q:"信頼できる科学者かな？", desc:"どの科学者が信頼できるかチェック"},
+  how: {label:"How",  color:"#fbbf24", light:"#fde68a", q:"どうやって伝わるのかな？", desc:"ネットの特徴的な表現と人の受け止め方をチェック"}
+};
+
+/* ---------------- チェックポイント（20） ---------------- */
+const CRITERIA = {
+  kakusan:{cat:"how", name:"拡散希望", manga:["kakusan.png"],
+    statement:"「拡散希望」の表示があれば、どんな投稿でも投稿者のために拡散すべきである。", answer:false,
+    expl:"「拡散希望」は過度に拡散をあおる（感情に訴える）行為です。よかれと思って、拡散しないようにしましょう。",
+    challenge:{q:"「拡散希望」の投稿を見たとき、どうすべきですか？",
+      choices:["友だちにだけ送る","良い内容なら拡散する","感動したら拡散する","よかれと思っても拡散しない"], correct:3}},
+  kocho:{cat:"how", name:"タイトルの誇張", manga:["kocho.png"],
+    statement:"本文の内容に比べ、タイトルは大げさな（誇張）表現である。", answer:true,
+    expl:"試験管実験の段階では、人に効果があるとは言えません。それなのにタイトルは「がん撲滅」。注意を引くために、大げさなタイトルを付けているのかもしれません。",
+    challenge:{q:"SNSや動画サイトなどで、コンテンツのタイトルが大げさに書かれていることがあります。その理由として、もっとも考えられるのはどれですか。",
+      choices:["法律で、必ず大げさに書かなければならないと決まっているから","たくさんの人の興味を引いて、中身を見てもらいたいから","内容を絶対に間違えないように、正確に伝えるためだから","タイトルを大げさにすると、スマホの通信量が節約できるから"], correct:1}},
+  shinyaku:{cat:"what", name:"新薬の開発", manga:["shinyaku.png"],
+    statement:"試験管実験でガン細胞の活動が低下すれば、人にも必ず効果がある。", answer:false,
+    expl:"試験管の実験は、開発の初期段階（基礎研究）です。新薬開発は、10年以上かけていろいろな実験をさらに重ねていかなければなりません。また、途中で失敗に終わることもあります。",
+    challenge:{q:"新しい薬（新薬）を開発する時の特徴として、正しいものはどれですか。",
+      choices:["開発にかかる期間は、どんなに長くても1年以内である","試験管を使う実験は、開発の一番最後に行われる","開発はとても難しく、途中で失敗してしまうこともある","開発が始まれば、必ず10年以内に薬が完成する"], correct:2}},
+  kakenhi:{cat:"who", name:"科学研究費", manga:["kakenhi.png"],
+    statement:"科学研究費は、国の機関からの研究費である。", answer:true,
+    expl:"日本学術振興会の「科学研究費」は、公的な研究費です。科学研究費は、同じ分野の研究者から審査を受けているので、信頼性は高まります。",
+    challenge:{q:"研究者のための「科学研究費（科研費）」の説明として、正しいものはどれですか。",
+      choices:["企業が商品を売って利益を出すために、研究者に配るお金である","研究者が自分のお小遣いを少しずつ貯めて作ったお金である","申し込めば、審査などは一切なく、誰でも必ずもらえるお金である","国などが出す公的なお金で、専門家の審査を通った研究に使われる"], correct:3}},
+  image:{cat:"how", name:"科学イメージ", manga:["science.png"],
+    statement:"研究者の写真があるので信頼できる。", answer:false,
+    expl:"白衣の医師や研究者、科学の写真や専門用語があると信じやすくなります。しかし、信頼させるための演出かもしれません。",
+    challenge:{q:"白衣姿の研究者や専門用語が出てくる情報を見たとき、どう考えるのが適切ですか？",
+      choices:["信頼させるための演出かもしれないと疑う","専門家なので無条件に信じる","専門用語が多ければ正しい情報だ","白衣を着ていれば絶対に安心だ"], correct:0}},
+  joken:{cat:"what", name:"条件の制御", manga:["joken.png","rct.png"],
+    statement:"納豆ダイエットの実験群と対照群は、正しい条件制御ができている。", answer:false,
+    expl:"正しく比較するには、「実験群」と「対照群」を作ります。\n・実験群は、新しいこと（納豆を食べる）を試すグループです。\n・対照群は、今まで通りの（納豆を食べない）グループです。\n大切なのは、納豆を食べさせること以外は、できるだけ同じ条件にすることです。これを条件制御といいます。この実験では、それ以外の条件が示されていないので、正しくできているか判断できません。",
+    between:"より高度な条件制御に「ランダム化比較試験」や「二重盲検法」もあります。",
+    challenge:{q:"新しい薬やダイエット法の効果を正しく確かめる実験を行うとき、もっとも大切なことはどれですか。",
+      choices:["実験をする人の勘を信じて、結果を予想すること","薬やダイエット法以外の条件（体重や年）も、バラバラに変えること","比べたいこと以外の条件は、できるだけ同じにしてそろえること","失敗しないように、実験の途中でやり方を変えること"], correct:2}},
+  data:{cat:"what", name:"データの数", manga:["data.png"],
+    statement:"被験者数は少ないが、実験群と対照群にわけているので信頼できる。", answer:false,
+    expl:"測り方や道具によって、実験結果が少しずれることがあります。「ずれ（誤差）」の影響をなくすには、たくさんの回数や人数で試します。ワクチンの開発では、3,000人以上で試します。",
+    challenge:{q:"実験をするとき、1回や1人だけでなく、何回も繰り返したり、たくさんの人が調べたりするのはなぜですか。",
+      choices:["偶然の「ずれ」の影響を小さくして、結果をより確実にするため","たくさんの回数を行うと、実験にかかる時間を短くできるから","実験道具をたくさん使わないと、道具がさびてしまうから","1回だけの実験だと、計算が簡単すぎて勉強にならないから"], correct:0}},
+  graph:{cat:"how", name:"グラフのわな", manga:["graph.png"],
+    statement:"省略グラフや立体グラフは、結果を正しく伝えることができない場合がある。", answer:true,
+    expl:"グラフは、省略の波線を入れたり強調の絵を入れることで、読者を惑わすことがあります。波線を付けることで、少しの差を大きな差のように見せることができます。3Dのグラフなども同様です。これらを意図的に利用することでイメージを操作しようとすることもあります。",
+    challenge:{q:"棒グラフの縦の目盛りの途中を省略する「波線」を使うと、グラフを見た時の印象はどのように変わりますか。",
+      choices:["わずかな差が強調されて、実際よりも大きな差があるように見える","実際よりも差が小さく見え、変化がほとんどないように感じる","グラフ全体が小さくなって、スマホの画面で見やすくなる","どの棒も同じ高さになり、差がまったくわからなくなる"], correct:0}},
+  iine:{cat:"how", name:"「いいね」の数", manga:["iine.png"],
+    statement:"「いいね」が多い記事は信頼できる。", answer:false,
+    expl:"あこがれの有名人の意見、評価（いいね）の多い意見は無条件に賛成しがちです。しかし、有名人であること、評価が多いことは、記事の信頼性と関係ありません。",
+    challenge:{q:"有名人の発言や、たくさんの「いいね」がついている情報を見るとき、一番正しい態度はどれですか？",
+      choices:["有名人だから、絶対に正しいと信じる","「いいね」が多いから、みんなを信じて正しいと思う","人気と中身は別なので、本当かどうか自分で確かめる","すべて宣伝なので、絶対に信じない"], correct:2}},
+  inga:{cat:"what", name:"原因と結果（因果と相関）", manga:["inga.png"],
+    statement:"チョコの消費量とノーベル賞受賞者数は、原因と結果が直接的に関係している。", answer:false,
+    expl:"物事の関係には、原因と結果が直接関係することと、直接とは限らないけど関係はしていることの2つがあります。\n・因果関係：原因があって結果がある、直接的な関係です。\n・相関関係：直接的なつながりはないかもしれないけど、関係していることです。\n👉 チョコレートの消費量とノーベル賞受賞者数は、相関関係です。",
+    challenge:{q:"「靴が大きい子ほど、知っている漢字が多い」というデータがあります。この理由として適切なのはどれですか。",
+      choices:["足をマッサージして大きくすれば、自然と漢字を覚えられる","漢字を勉強して頭を使うと、その影響で足が大きくなる","たまたま数字が似ただけで、データ上の関係は全くない","学年が上がると足も成長し、習う漢字も増えるため"], correct:3}},
+  rieki:{cat:"who", name:"企業の利益", manga:["rieki.png"],
+    statement:"チョコレート会社が、利益を得ようと投稿している可能性がある。", answer:true,
+    expl:"発信者と記事に利害関係がある場合は注意しましょう。今回の記事は、チョコ会社がチョコの売り上げを伸ばそうとした可能性があります。",
+    challenge:{q:"ニュースや記事を読むとき、その情報を発信しているのが「営利企業」である場合、特に注意が必要なのはどのような時ですか。",
+      choices:["記事の内容が、その会社の利益（儲け）に直接関係している時","その会社が、とても有名で大きな会社である時","記事の中に、きれいな写真やグラフが使われている時","その会社が、海外のニュースについて伝えている時"], correct:0}},
+  media:{cat:"who", name:"テレビや新聞の専門家", manga:["media.png"],
+    statement:"大手新聞社やTV局は、記事の信頼性を専門家がチェックすることが多い。", answer:true,
+    expl:"大手の新聞やTV（マスメディア）の多くは、科学ニュース編集の専門家が信頼性を確認しています。科学者の難しい言葉を一般人にわかるようにもしています。もちろん、専門家にも間違いはあるので、注意は必要です。",
+    challenge:{q:"新聞やテレビなどの「大手メディア」が伝える科学ニュースについて、正しいのはどれですか。",
+      choices:["専門家が内容を確認し、分かりやすく伝えている","内容は絶対に正しく、間違いは一つもない","わざと難しい言葉を使って、読者を混乱させている","誰のチェックも受けず、想像だけで書かれている"], correct:0}},
+  consensus:{cat:"who", name:"科学的コンセンサス", manga:["consensus.png"],
+    statement:"IPCCの報告書には、科学的コンセンサスがない。", answer:false,
+    expl:"「科学的コンセンサス」とは、多くの専門家（科学者）が、たくさんの証拠に基づいて「これが現時点では最も確からしい説明だ」と広く合意していることです。IPCCの報告は、多くの専門家が合意しているので、科学的コンセンサスがあります。",
+    challenge:{q:"「科学的コンセンサス」の説明として、正しいものはどれですか。",
+      choices:["一度決まれば、これからずっと変わることはない","多くの専門家が、証拠をもとに「現時点で最も確かだ」と合意したもの","一人の天才科学者が、自分の直感だけで決めたこと","科学の知識がない人も含め、多数決で決めたこと"], correct:1}},
+  cherry:{cat:"what", name:"チェリーピッキング（いいとこ取り）", manga:["cherry.png"],
+    statement:"主張したいことがある場合は、主張にあう情報だけを抜き出してよい。", answer:false,
+    expl:"正しい主張には、都合の良い情報だけでなく、「全体を公平に見渡したデータ」が欠かせません。都合の悪い事実を隠した主張は、信頼性を失います。「今年の冬は寒かったから温暖化はウソ」という意見は、都合のよい一部分だけを取り出した「いいとこ取り」かもしれません。",
+    challenge:{q:"10回の実験を行ったところ、そのうち2回では成分の効果が認められました。研究者として許されない行為はどれですか。",
+      choices:["効果が認められなかった8回の実験について、その理由を研究する","効果が認められた2回の実験結果だけを発表する","10回すべての実験結果を発表する","別の成分を用いて、もう一度実験する"], correct:1}},
+  kokyo:{cat:"who", name:"公的な報告書", manga:["kokyo.png"],
+    statement:"IEAなど公的な機関の報告書は、信頼性が高い。", answer:true,
+    expl:"多くの国が参加している公的な機関や、NASAや国立科学研究所などの国立の科学団体の報告書は、信頼性が高いと考えられています。",
+    challenge:{q:"科学について調べる時、一般的に信頼性が高いのはどの情報ですか。",
+      choices:["誰が書いたか分からないSNSの投稿","商品を売りたい会社が作った、広告のチラシ","噂や都市伝説を集めた雑誌","NASAや国立研究所など、公的な機関の報告書"], correct:3}},
+  jisseki:{cat:"who", name:"研究者の実績", manga:["jisseki.png"],
+    statement:"ユリアン・ゴンザレスには、研究実績がある。", answer:true,
+    expl:"研究者の信頼は、実績（論文数や研究上の役職）によって決まります。ユリアン・ゴンザレスは、脳神経外科の分野では実績のある専門家といえます。なお、査読付き論文とは、同じ分野の研究者からチェックを受けているので、信頼性は高まります。",
+    challenge:{q:"研究者の信頼について、正しいのはどれですか。",
+      choices:["信頼は「テレビの出演回数」で決まる","信頼は同じ分野の専門家がチェックした論文の数などで決まる","信頼は「お金持ちかどうか」で決まる","論文はAIが勝手に書いたものでも信頼できる"], correct:1}},
+  senmon:{cat:"who", name:"研究者の専門", manga:["senmon.png"],
+    statement:"海外ニュースの内容と、ユリアン・ゴンザレスの専門性は合っている。", answer:false,
+    expl:"実績の数だけでなく、専門性も確認する必要があります。今回の論文はがん（呼吸器の分野）についてです。ユリアン・ゴンザレスの専門は脳神経外科なので、専門が違うことを研究しています。",
+    challenge:{q:"専門家の話を信じてよいか判断する時、論文などの実績以外に確認すべきことは何ですか。",
+      choices:["声が大きくて、自信満々か","顔がかっこよくて、人気があるか","服装が高そうで、おしゃれか","その話題が、その人の専門分野か"], correct:3}},
+  coi:{cat:"who", name:"利益相反", manga:["coi.png"],
+    statement:"この論文は、研究費を出した団体の影響を受けることはない。", answer:false,
+    expl:"どの団体から研究費をもらったかによって、研究結果に影響が出るかもしれません。今回はタバコ会社からの研究費です。タバコ会社に有利な研究成果にしようとした可能性があります。この関係を、利益相反（りえきそうはん）と言います。",
+    challenge:{q:"企業からお金をもらった研究について、注意すべき点について正しいのはどれですか。",
+      choices:["お金をもらうと、必ず嘘の結果になる","研究にお金は関係ないので、気にする必要はない","どんなにお金をもらっても、絶対に影響は受けない","企業との関係によって、結果が偏る可能性がある"], correct:3}},
+  echo:{cat:"how", name:"エコーチェンバー現象", manga:["echo.png"],
+    statement:"SNSでは情報が偏り、意見が過激になることもある。", answer:true,
+    expl:"事例のコメントは、親しい仲間の意見には同調し、仲間と違う考えは排除しています。これは「エコーチェンバー現象」と言われ、SNS上で、考えが偏り過激になることがあります。",
+    challenge:{q:"SNSで「エコーチェンバー現象」が起き、自分の考えが偏ったり過激になったりしてしまう「主な原因」はどれでしょう？",
+      choices:["自分とは反対の意見をたくさん聞いているから","SNSを使う時間がとても短いから","スマホの画面が明るすぎるから","自分と似た意見の人とばかり関わっているから"], correct:3}},
+  method:{cat:"what", name:"信頼のある研究手法", manga:["method.png"],
+    statement:"システマティックレビューやメタ分析は、信頼性がある研究方法である。", answer:true,
+    expl:"研究手法によって論文の信頼度が変わります。「メタ分析」は、たくさんの論文の分析結果をさらに分析する方法なので、信頼性の高い手法です。",
+    challenge:{q:"信頼性の高い「メタ分析」とは、具体的にどのような方法で結論を出すのでしょうか？",
+      choices:["複数の論文のデータを集めて、統合して分析する","一人の専門家の個人的な体験談をまとめる","実験室で条件を制御した実験を行う","アンケート結果だけを集計する"], correct:0}}
+};
+
+/* ---------------- グラフSVG ---------------- */
+const SVG_CHOCO = `
+<svg viewBox="0 0 360 300" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;background:#fff;">
+  <text x="185" y="18" text-anchor="middle" font-size="12.5" font-weight="bold" fill="#1f2937">図表1　チョコレート消費量とノーベル賞受賞者の関係</text>
+  <text x="14" y="160" font-size="9" fill="#374151" transform="rotate(-90 14 160)">1000万人あたりのノーベル賞受賞者数</text>
+  <text x="30" y="34" font-size="9" fill="#374151">(人)</text>
+  <line x1="52" y1="38" x2="52" y2="252" stroke="#6b7280" stroke-width="1.5"/>
+  <line x1="52" y1="252" x2="340" y2="252" stroke="#6b7280" stroke-width="1.5"/>
+  <g font-size="9" fill="#374151" text-anchor="end">
+    <text x="48" y="46">35</text><text x="48" y="76">30</text><text x="48" y="106">25</text><text x="48" y="136">20</text>
+    <text x="48" y="166">15</text><text x="48" y="196">10</text><text x="48" y="226">5</text><text x="48" y="256">0</text>
+  </g>
+  <g font-size="9" fill="#374151" text-anchor="middle">
+    <text x="52" y="266">0</text><text x="148" y="266">5</text><text x="244" y="266">10</text><text x="340" y="266">15</text>
+  </g>
+  <text x="196" y="280" font-size="9.5" fill="#374151" text-anchor="middle">チョコレートの年間消費量</text>
+  <text x="330" y="280" font-size="9" fill="#374151">(kg/人)</text>
+  <ellipse cx="190" cy="150" rx="165" ry="72" transform="rotate(-24 190 150)" fill="none" stroke="#ef4444" stroke-width="2" stroke-dasharray="7 5"/>
+  <g font-size="8.5" fill="#1f2937">
+    <circle cx="66" cy="251" r="3.5"/><text x="60" y="244">中国</text>
+    <circle cx="108" cy="250" r="3.5"/><text x="100" y="263">ブラジル</text>
+    <circle cx="87" cy="243" r="3.5"/><text x="60" y="232">日本</text>
+    <circle cx="89" cy="238" r="3.5"/><text x="93" y="230">ギリシャ</text>
+    <circle cx="90" cy="234" r="3.5" opacity="0"/>
+    <circle cx="89" cy="232" r="3.5"/><text x="46" y="220">ポルトガル</text>
+    <circle cx="121" cy="242" r="3.5"/><text x="121" y="235">スペイン</text>
+    <circle cx="123" cy="232" r="3.5"/><text x="125" y="226">イタリア</text>
+    <circle cx="121" cy="226" r="3.5"/><text x="72" y="204">ポーランド</text>
+    <circle cx="127" cy="215" r="3.5"/><text x="96" y="192">カナダ</text>
+    <circle cx="144" cy="219" r="3.5"/><text x="146" y="216">オーストラリア</text>
+    <circle cx="137" cy="200" r="3.5"/><text x="118" y="180">ベルギー</text>
+    <circle cx="139" cy="184" r="3.5"/><text x="141" y="178">オランダ</text>
+    <circle cx="154" cy="188" r="3.5"/><text x="158" y="196">アメリカ</text>
+    <circle cx="173" cy="198" r="3.5"/><text x="177" y="206">フランス</text>
+    <circle cx="192" cy="206" r="3.5"/><text x="196" y="214">フィンランド</text>
+    <circle cx="221" cy="176" r="3.5"/><text x="225" y="184">アイルランド</text>
+    <circle cx="264" cy="176" r="3.5"/><text x="268" y="184">ドイツ</text>
+    <circle cx="238" cy="138" r="3.5"/><text x="242" y="146">イギリス</text>
+    <circle cx="215" cy="112" r="3.5"/><text x="180" y="102">ノルウェー</text>
+    <circle cx="215" cy="100" r="3.5"/><text x="219" y="94">オーストリア</text>
+    <circle cx="215" cy="106" r="3.5" opacity="0"/>
+    <circle cx="215" cy="103" r="3.5" opacity="0"/>
+    <circle cx="222" cy="100" r="3.5" opacity="0"/>
+    <circle cx="215" cy="121" r="3.5"/><text x="219" y="129">デンマーク</text>
+    <circle cx="175" cy="61" r="3.5"/><text x="120" y="54">スウェーデン</text>
+    <circle cx="281" cy="63" r="3.5"/><text x="285" y="57">スイス</text>
+  </g>
+  <text x="60" y="294" font-size="9" fill="#555">(出典) Messerli (2012)</text>
+</svg>`;
+
+/* =====================================================================
+   ユーティリティ
+   ===================================================================== */
+function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+function nl(s){ return esc(s).replace(/\n/g,"<br>"); }
+
+/* 電球SVG（state: "lit"=点灯 / "half"=半灯 / "off"=消灯） */
+function bulbSVG(catId, state){
+  const c = CATS[catId];
+  let fill, rays="", stroke="#1f2937", op=1;
+  if(state==="lit"){ fill=c.color;
+    rays=`<g stroke="${c.color}" stroke-width="2.6" stroke-linecap="round">
+      <line x1="20" y1="2" x2="20" y2="8"/><line x1="6" y1="8" x2="10" y2="13"/><line x1="34" y1="8" x2="30" y2="13"/></g>`;
+  } else if(state==="half"){ fill=c.light; }
+  else { fill="#e5e7eb"; stroke="#9ca3af"; }
+  return `<svg viewBox="0 0 40 56" xmlns="http://www.w3.org/2000/svg">
+    ${rays}
+    <circle cx="20" cy="24" r="13" fill="${fill}" stroke="${stroke}" stroke-width="2.4" opacity="${op}"/>
+    <path d="M14 34 q6 4 12 0 l-1.5 8 h-9 z" fill="#fff" stroke="${stroke}" stroke-width="2"/>
+    <line x1="15" y1="40" x2="25" y2="40" stroke="${stroke}" stroke-width="1.8"/>
+    <line x1="15.5" y1="44" x2="24.5" y2="44" stroke="${stroke}" stroke-width="1.8"/>
+  </svg>`;
+}
+
+function toast(msg, ms){
+  const t = document.getElementById("toast");
+  t.innerHTML = msg; t.classList.add("show");
+  clearTimeout(t._tm); t._tm = setTimeout(()=>t.classList.remove("show"), ms||2600);
+}
+function openModal(html){
+  const r = document.getElementById("modal-root");
+  r.innerHTML = `<div class="mback" onclick="closeModal()"></div>
+    <div class="mbox"><button class="mclose" onclick="closeModal()">✕</button>${html}</div>`;
+  r.classList.add("show");
+}
+function closeModal(){ document.getElementById("modal-root").classList.remove("show"); }
+
+/* =====================================================================
+   状態・学習ログ
+   ===================================================================== */
+const LS_KEY = "sml_tanteidan_v2";
+let S = loadState();
+
+function defaultState(){
+  const st = {version:2, app:"科学メディアリテラシー探偵団", name:"",
+    createdAt:new Date().toISOString(), updatedAt:null,
+    crit:{}, practice:{tate:false, yoko:false},
+    retryShown:false, perfectPraised:false,
+    tests:{pre:null, post:null}, events:[]};
+  Object.keys(CRITERIA).forEach(k=>{ st.crit[k] = {quiz:null, challenge:null, quizFirst:null, chalFirst:null, quizTry:0, chalTry:0}; });
+  return st;
+}
+function loadState(){
+  try{
+    const raw = localStorage.getItem(LS_KEY);
+    if(raw){ const st = JSON.parse(raw); if(st && st.version===2) return mergeState(st); }
+  }catch(e){}
+  return defaultState();
+}
+function mergeState(st){
+  const d = defaultState();
+  Object.keys(CRITERIA).forEach(k=>{ if(!st.crit[k]) st.crit[k]=d.crit[k]; });
+  Object.values(st.crit).forEach(c=>{ if(!("quizFirst" in c)) c.quizFirst = c.quiz; if(!("chalFirst" in c)) c.chalFirst = c.challenge; });
+  if(st.retryShown===undefined) st.retryShown = false;
+  if(st.perfectPraised===undefined) st.perfectPraised = false;
+  if(!st.practice) st.practice = d.practice;
+  if(!st.tests) st.tests = {pre:null, post:null};
+  if(!Array.isArray(st.events)) st.events = [];
+  return st;
+}
+function save(){
+  S.updatedAt = new Date().toISOString();
+  try{ localStorage.setItem(LS_KEY, JSON.stringify(S)); }catch(e){}
+}
+function logEv(type, data){
+  S.events.push(Object.assign({t:new Date().toISOString(), type}, data||{}));
+  if(S.events.length>6000) S.events = S.events.slice(-6000);
+  save();
+}
+function bulbState(critId){
+  const c = S.crit[critId];
+  const n = (c.quiz===true?1:0) + (c.challenge===true?1:0);
+  return n===2 ? "off" : n===1 ? "half" : "lit";
+}
+function totalScore(){
+  let n=0;
+  Object.values(S.crit).forEach(c=>{ if(c.quiz===true)n+=2; if(c.challenge===true)n+=3; });
+  return n;
+}
+/* 横読み解放条件（通常版）：縦読み3教材の全電球（2問）に回答済み */
+function yokoUnlocked(){
+  return NEWS.filter(n=>n.mode==="tate").every(n=>n.bulbs.every(cid=>S.crit[cid].quiz!==null && S.crit[cid].challenge!==null));
+}
+const YOKO_LOCK_MSG = "🔒 縦読み3教材の電球すべて（クイズとチャレンジ問題）に答えると、横読み教材に進めるよ！";
+/* 初回チャレンジの得点（クイズ2点・チャレンジ3点） */
+function firstScore(){
+  let n=0;
+  Object.values(S.crit).forEach(c=>{ if(c.quizFirst===true)n+=2; if(c.chalFirst===true)n+=3; });
+  return n;
+}
+function retryGain(){
+  setTimeout(()=>toast("⤴️ 得点アップ！ 初回 " + firstScore() + "点 → 現在 " + totalScore() + "点"), 700);
+}
+/* 6教材すべて回答 → 再チャレンジ解放の告知 */
+function retryUnlockModal(){
+  logEv("retry_unlocked",{first:firstScore()});
+  openModal(`<div style="font-size:48px; text-align:center;">🔓🔥</div>
+    <div class="h1" style="text-align:center;">再チャレンジ 解放！</div>
+    <p style="text-align:center; font-size:15px; font-weight:800; margin-top:8px;">6つの教材をすべてやり終えた！<br>初回チャレンジの得点：<span style="font-size:22px; color:var(--accent2);">${firstScore()}点</span>／100点</p>
+    <p style="font-size:14px; line-height:2; margin-top:10px;">ここからは<b>再チャレンジ</b>ができるよ。半灯・点灯の電球をもう一度クリックして、まちがえた問題に再挑戦！得点を加算して<b>100点満点</b>を目指そう。初回の得点は「きろく」にちゃんと残るから安心してね。</p>
+    <button class="btn wide pink" style="margin-top:10px;" onclick="closeModal();go('news')">🔥 再チャレンジへ！</button>`);
+}
+/* 全電球消灯（100点）の称賛 */
+function grandPraiseModal(){
+  const fs = firstScore(), diff = totalScore() - fs;
+  logEv("perfect_all",{first:fs, now:totalScore()});
+  openModal(`<div style="font-size:54px; text-align:center;">🏆✨</div>
+    <div class="h1" style="text-align:center;">100点満点 達成！！</div>
+    <div style="background:#fdf2f8; border-radius:14px; padding:14px; margin:14px 0; text-align:center; font-size:16px; font-weight:800;">
+      初回チャレンジ ${fs}点 → <span style="color:var(--accent2); font-size:24px;">${totalScore()}点</span>
+      ${diff>0?`<div style="margin-top:6px; color:#059669; font-size:18px;">＋${diff}点もアップ！🎉</div>`:""}
+    </div>
+    <p style="font-size:14px; line-height:2;">${diff>0?"まちがいから学び直して、全部の電球を消せたのがすばらしい！科学の情報も、こうやって確かめながら読めば、もうだまされないよ。":"初回から満点！おそるべき観察力！キミはもう立派な科学ニュース探偵だ！"}</p>
+    <button class="btn wide pink" style="margin-top:12px;" onclick="closeModal();go('news')">🎉 やったー！</button>`);
+}
+/* 全チェックポイントの2問に回答済み（＝6つの教材を最後までやり終えた）か */
+function allBulbsDone(){
+  return Object.values(S.crit).every(c=>c.quiz!==null && c.challenge!==null);
+}
+/* プレポスト版のゲート：事前テストを終えるまで教材はロック */
+function preGateLocked(){
+  return PREPOST_ENABLED && !S.tests.pre;
+}
+function catScore(catId){
+  let ok=0, all=0;
+  Object.entries(CRITERIA).forEach(([id,c])=>{
+    if(c.cat!==catId) return;
+    all+=5;
+    if(S.crit[id].quiz===true) ok+=2;
+    if(S.crit[id].challenge===true) ok+=3;
+  });
+  return {ok, all};
+}
+function renderScore(){
+  document.getElementById("scorebox").textContent = "⭐ " + totalScore() + "点／100点" + (allBulbsDone() ? "（初回 " + firstScore() + "点）" : "");
+}
+
+/* =====================================================================
+   教材データ
+   ===================================================================== */
+/* 電球スロット */
+function B(critId){ return `<span class="bslot stage-b hidden-b" data-crit="${critId}"></span>`; }
+/* ムラサキ文字（横読みリンク）: data-open="tabId1,tabId2" */
+function P(tabIds, text){ return `<span class="plink" data-open="${tabIds}">${text}</span>`; }
+
+const NEWS = [
+{
+  id:"gan", icon:"💊", title:"がん治療", mode:"tate", tab:"大親友",
+  bulbs:["kakusan","kocho","shinyaku","kakenhi","image"],
+  needExpand:1,
+  feed(){ return `<div class="sns">
+    <div class="authrow"><div class="av">👤</div><div class="an">大親友</div></div>
+    <div class="sec">【拡散希望】${B("kakusan")}<br>新たに見つかったがんの治療薬です！<br>バズれば製品化が早まるはず！</div>
+    <div class="authrow"><div class="av">👤</div><div class="an">週刊文秋</div><div class="follow">FOLLOW</div><div class="dots">…</div></div>
+    <div class="sec"><div class="title">がん患者に朗報！成分Pでがん撲滅 ${B("kocho")}</div>
+      がん患者の新たな希望となるニュースが飛び込んできた！
+      <span class="morelink" data-x="gan">・・・更に表示</span>
+      <span class="moretext" style="display:none;">
+      <br>最新の研究によると、Pという成分には、がん発生の抑制に効果あることが分かった。<br>
+      研究では、ラットのがん細胞を試験管内で培養し、成分Pを含む濃度の高い薬液と混ぜるとがん細胞の活動が低下した。${B("shinyaku")}<br>
+      本研究の一部は、日本学術振興会における科学研究費 24K0611 の助成を受けている。${B("kakenhi")}
+      <span class="photo"><img src="${PIC}kenkyusha.png" alt="研究者のイメージ写真">
+        <span class="bslot stage-b hidden-b overlay" data-crit="image"></span></span>
+      </span>
+    </div>
+    <div class="statsrow"><div class="icons">♡ 💬 ✈️</div>
+      <div class="nums"><span>❤️ 5202 いいね</span><span>📤 1110 シェア</span></div></div>
+    ${cmt("User-A","私の父もがんになったので、お医者さんと相談して、治療に取り入れてみたいと思います。")}
+    ${cmt("User-B","がんに苦しんでいる方が、この治療で少しでも救われるように拡散しました！")}
+    ${cmt("User-C","まだ薬にはなってないんだよね…早く薬にならないかな…")}
+    ${endBtn()}
+  </div>`;}
+},
+{
+  id:"natto", icon:"🍚", title:"納豆ダイエット", mode:"tate", tab:"超有名イン…",
+  bulbs:["data","joken","graph","iine"],
+  needExpand:1,
+  feed(){ return `<div class="sns">
+    <div class="authrow"><div class="av">👤</div><div class="an">超有名インフルエンサー</div></div>
+    <div class="sec">納豆ダイエットに挑戦中です！<br>3日目なのに効果が出ています！<div class="date">2024年7月3日投稿</div></div>
+    <div class="authrow"><div class="av">👤</div><div class="an">○△テレビ</div><div class="follow">FOLLOW</div><div class="dots">…</div></div>
+    <div class="sec">【納豆でお手軽ダイエット】<br>納豆ダイエットの効果が実験で証明されました！！
+      <span class="morelink" data-x="natto">・・・更に表示</span>
+      <span class="moretext" style="display:none;">
+      <br><b style="text-decoration:underline;">ためして Go！（○△テレビ）</b><br>
+      　<b>納豆ダイエットの効果が実験で証明されました！！</b><br>
+      1．納豆を食べる5人の実験群と食べない5人の対照群に分けた。${B("data")}<br>
+      2．実験群は朝夕1パックずつ食べ、対照群は納豆以外を食べた。${B("joken")}<br>
+      3．これを10日間続けます。<br>
+      4．図は、体重変化を比較したグラフです。
+      <span class="graphbox"><img src="${PIC}resultofnattodiet.png" alt="納豆ダイエットの結果のグラフ" style="width:100%; display:block; border-radius:6px;"><span class="bslot stage-b hidden-b" data-crit="graph" style="position:absolute; top:10px; left:12px; width:30px; height:40px;"></span></span>
+      <div class="date">2012年7月1日投稿</div>
+      </span>
+    </div>
+    <div class="statsrow"><div class="icons">♡ 💬 ✈️</div>
+      <div class="nums"><span>❤️ 338.9万 いいね ${B("iine")}</span><span>📤 101030 シェア</span></div></div>
+    ${cmt("User-A","OOさんがオススメしているなら私も試してみようかな！！")}
+    ${cmt("User-B","こんな簡単な方法で痩せれるなんて夢みたい。続けてみます。")}
+    ${cmt("User-C","納豆だけで10日間！！絶対嘘やろ…")}
+    ${endBtn()}
+  </div>`;}
+},
+{
+  id:"choco", icon:"🍫", title:"ノーベル賞とチョコ", mode:"tate", tab:"昭和チョコ",
+  bulbs:["rieki","inga"],
+  needExpand:1,
+  feed(){ return `<div class="sns">
+    <div class="authrow"><div class="av">👤</div><div class="an">(株)昭和チョコ ${B("rieki")}</div></div>
+    <div class="sec">国民のチョコレートの消費量が多くなるほどノーベル賞受賞者が増える！
+      <span class="morelink" data-x="choco">・・・更に表示</span>
+      <span class="moretext" style="display:none;">
+      <br>　チョコレートに含まれるフラボノールは、認知機能を高めることが動物実験などによって明らかになっている。<br>
+      　このことに着目したコロンビア大学の医師が2012年に行ったデータ分析によると、1人あたりのチョコレートの年間消費量が多い国ほど、ノーベル賞を受賞している人の数が多いことがわかった(図表1)。<br>
+      　筆者は，国民が1人あたり年間400ｇ多くチョコレートを摂取すると、その国のノーベル賞受賞者の数が1人増えると結論づけた。${B("inga")}<br>
+      <span style="font-size:11.5px;">＊臨床医学の世界で最も権威がある学会誌に掲載された論文から引用した。</span>
+      <span class="graphbox">${SVG_CHOCO}</span>
+      </span>
+    </div>
+    <div class="statsrow"><div class="icons">♡ 💬 ✈️</div>
+      <div class="nums"><span>❤️ 1095 いいね</span><span>📤 108 シェア</span></div></div>
+    ${cmt("User-A","日本がノーベル賞少ないのはチョコ文化が乏しいからなのか…")}
+    ${cmt("User-B","これはいい記事だ！！子どもの将来のためにチョコをたくさん買って帰ろうっと！！")}
+    ${cmt("User-C","チョコで有名なベルギーがそんなに高くないの変じゃね？なんか変じゃない？？")}
+    ${endBtn()}
+  </div>`;}
+},
+{
+  id:"ondanka", icon:"🌍", title:"地球温暖化", mode:"yoko", tab:"国内最大手新聞",
+  bulbs:["media","consensus","kokyo","cherry"],
+  sources:[
+    {id:"ipcc", tab:"ipcc", page(){ return `<div class="srcpage">
+      <div class="wikilogo">WIKI大百科辞典</div>
+      <h3>IPCC（気候変動に関する政府間パネル）</h3>
+      <div style="text-align:center; font-size:26px; letter-spacing:4px; background:#f0f9ff; border-radius:10px; padding:14px; color:#0284c7; font-weight:900;">ipcc <span style="font-size:11px; color:#555; font-weight:700;">INTERGOVERNMENTAL PANEL ON climate change</span></div>
+      <p style="margin-top:10px;">　気候変動について最新の科学的知見を評価する政府間組織で、195の国と地域が参加。「Intergovernmental Panel on Climate Change」の略。</p>
+      <p>　世界の研究者の協力のもと、定期的に報告書を作成している。報告書は専門家と政府によって厳しいチェック（査読）が行われ、多くの研究者が賛同した論文のみが掲載されます。${B("consensus")}</p>
+    </div>`;}},
+    {id:"iea", tab:"外務省", page(){ return `<div class="srcpage">
+      <div class="govlogo"><span class="gl">🏛️</span><span><span class="gt">外務省</span><br><span class="ge">Ministry of Foreign Affairs of Japan</span></span></div>
+      <h3>国際エネルギー機関（IEA）</h3>
+      <p>　石油・ガスの緊急時への供給やエネルギー技術・開発協力、省エネルギーの研究・普及などを目的とする政府間組織で、OECDに加盟している38の国と地域が参加。</p>
+      <p>　日本においては、石油供給の大半を外国に依存している。そのためにIEAの供給や保障を受けるところが大きく、IEAは日本のエネルギー安全保障上、極めて重要である。${B("kokyo")}</p>
+    </div>`;}}
+  ],
+  feed(){ return `<div class="sns">
+    <div class="authrow"><div class="av">👤</div><div class="an">国内最大手新聞SNS ${B("media")}</div></div>
+    <div class="sec"><div class="title">「気候の時限爆弾」閉ざされつつある1.5℃目標。</div>
+      　${P("ipcc","IPCC")}報告は、改めて温室効果ガス排出による温暖化が進んでいることを強調。 また、温暖化が進むほど、「損失と被害が拡大する」と危機感を示す。このままでは食糧や水不足が増える。 感染症の世界的流行や紛争などと重なるとより事態は難しくなるとしている。 ${P("iea","IEA")}によると、昨年の二酸化炭素（CO2）排出量は過去最多になった。 日本国内でも停止していた石炭火力発電の再稼働が進む。 中国は、再生可能エネルギーとともに国内の石炭を使った石炭火力の増設に走る。
+    </div>
+    <div class="statsrow"><div class="icons">♡ 💬 ✈️</div>
+      <div class="nums"><span>❤️ 2440 いいね</span><span>📤 240 シェア</span></div></div>
+    ${cmt("User-A","具体的にどのくらい減らさないといけないの？")}
+    ${cmt("User-B","IPCCとかIEAって何者？国際的な機関なのかな？")}
+    ${cmt("User-C",`今年の冬は寒かったから、温暖化してるはずがない！！温暖化はウソです！！${B("cherry")}`)}
+    ${endBtn()}
+  </div>`;}
+},
+{
+  id:"tabaco", icon:"🚬", title:"たばことがん", mode:"yoko", tab:"海外ニュース",
+  bulbs:["jisseki","senmon","coi"],
+  sources:[
+    {id:"prof", tab:"ユリアン…", page(){ return `<div class="srcpage">
+      <div style="display:flex; gap:12px; align-items:flex-start;">
+        <img src="${PIC}gonzalez.png" alt="ユリアン・ゴンザレス教授" style="width:42%; border-radius:6px;">
+        <div style="flex:1; text-align:right; line-height:1.9; font-size:14px;">ユリアン・ゴンザレス<br>Julian Gonzalez<br>ガイコクノ大学医学部脳神経科<br>名誉教授</div>
+      </div>
+      <p class="sh" style="text-align:left; margin-top:12px;">研究業績 ${B("jisseki")}</p>
+      <p>2000年：米国脳神経外科学会: 学会賞受賞<br>　　　　（他 優秀論文賞12本）<br>　　　　脊髄に関する論文（査読付き98本、査読なし55本）</p>
+      <p class="sh" style="text-align:left;">専門 ${B("senmon")}</p>
+      <p>脳神経学、神経行動学、神経診療技法</p>
+    </div>`;}},
+    {id:"paper", tab:"受動喫煙…", page(){ return `<div class="srcpage">
+      <div class="site">国際呼吸器内科学会</div>
+      <h3 class="ctr" style="font-weight:800; font-size:18px;">受動喫煙とがん発生の関係性</h3>
+      <p style="text-align:center;">ユリアン・ゴンザレス<br>ガイコクノ大学</p>
+      <p class="sh">Abstract（概要）</p>
+      <p>本研究では、喫煙者とその家族に対して健康状態などの調査を継時的に実施し、受動喫煙と健康被害の関連を分析した。 特に喫煙と密接な関係にあるとされているがんに関しては、関係が低いことが示された。</p>
+      <p class="sh">本文</p>
+      <p>近年、タバコとがんの関係が叫ばれているが・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・がん発生と直接的な関係性は低いことが明らかになった。</p>
+      <p class="sh">謝辞 ${B("coi")}</p>
+      <p>本研究は、国際タバコ協会からの助成を受けた。また、対象者の選定はタバコカンパニーの協力を受けた。</p>
+      <p class="sh">引用文献</p>
+      <p style="font-size:13px;">Smith, J., &amp; Johnson, A. (2023). "The Role of Air Quality in Respiratory Health: A Co-</p>
+    </div>`;}}
+  ],
+  feed(){ return `<div class="sns">
+    <div class="authrow"><div class="av">👤</div><div class="an">海外ニュース</div></div>
+    <div class="sec"><div class="title">【速報】タバコとがんの発生率は関連なし</div>
+      　ガイコクノ大学の${P("prof","ユリアン・ゴンザレス")}教授の研究によってがんの発生率とタバコのけむりには関係性が低いということが明らかになった。 研究によるとたばこのけむりの量や成分には、がんを発生させるほどの効果や濃度はなく、がん発生と直接的な関係性が無いとしている。 この研究結果は、国立がん研究センターやA国保健機関による更なる検証を受ける予定だ。<br><br>
+      <b>参考論文</b><br>
+      ユリアン・ゴンザレス(2024)：${P("paper","受動喫煙とがん発生の関係性")}, 国際呼吸器内科学会誌, 12-21<br>
+      <span style="font-size:12px;">＊本記事は海外メディアの記事を翻訳したものである。</span>
+    </div>
+    <div class="statsrow"><div class="icons">♡ 💬 ✈️</div>
+      <div class="nums"><span>❤️ 159 いいね</span><span>📤 240 シェア</span></div></div>
+    ${cmt("User-A","今までの常識を覆す発見だ！！")}
+    ${cmt("User-B","悪影響が少ないとしてもタバコのにおいは苦手だな…")}
+    ${endBtn()}
+  </div>`;}
+},
+{
+  id:"vaccine", icon:"💉", title:"ワクチン", mode:"yoko", tab:"友人B",
+  bulbs:["echo","method"],
+  sources:[
+    {id:"mhlw", tab:"厚生労働省", page(){ return `<div class="srcpage">
+      <div class="govlogo"><span class="gl">🏥</span><span><span class="gt">厚生労働省</span><br><span class="ge">ひと、くらし、みらいのために ─ Ministry of Health, Labour and Welfare</span></span></div>
+      <p>　ワクチンが原因で不妊になるという科学的な根拠はないとのことです。ワクチン接種により流産率は上がっておらず、妊娠しにくくなるという根拠も確認されていません。</p>
+    </div>`;}},
+    {id:"paper", tab:"&lt;論文&gt;…", page(){ return `<div class="srcpage">
+      <h3 class="ctr" style="font-weight:800;">&lt;論文&gt; COVID-19ワクチンの生殖能力への影響: システマティックレビューとメタ分析から${B("method")}</h3>
+      <p style="text-align:center; font-size:13.5px;">D Zaçe , E La Gatta , L Petrella , M L Di Pietro</p>
+      <p>　生殖能力に対する新型コロナのワクチン接種の影響を調査した29件を分析した。 ワクチン接種歴のある人とない人で、生殖能力の各条件や臨床的な妊娠成功率に差は観察されなかった。「ワクチン接種」と「不妊」の関連性を示す証拠は今のところない。</p>
+      <p style="font-size:13px;">DOI: <u>10.1016/j.vaccine.2022.09.019</u></p>
+    </div>`;}}
+  ],
+  feed(){ return `<div class="sns">
+    <div class="authrow"><div class="av">👤</div><div class="an">友人B</div></div>
+    <div class="sec"><div class="title">【ワクチン反対】新型コロナウイルスの${P("mhlw,paper","ワクチン接種で「不妊」")}に💢</div>
+      　ファイザー社の元職員が「ワクチンによって体内で作られた抗体が胎盤のたんぱく質に悪影響を与え、不妊になる可能性がある」って証言してます。 ワクチンを打った動物が死んだってうわさもあるから、注意しましょう。
+    </div>
+    <div class="statsrow"><div class="icons">♡ 💬 ✈️</div>
+      <div class="nums"><span>❤️ 2440 いいね</span><span>📤 240 シェア</span></div></div>
+    ${cmt("友人Bの親友C","やっぱりワクチンは危険だよね？")}
+    ${cmt("友人BのフォロワーD","ワクチンにマイクロチップが入っていて、人々を管理するらしいよ。")}
+    ${cmt("フォロワーDのフォロワーE","ワクチンを打つと体内に長期間成分が残り、遺伝情報が書き換えられるうわさもあるし…")}
+    ${cmt("親友Cの親友F","ワクチンによって高齢者が新型コロナに感染したうわさもあるから、みんなで協力して反対運動をしよう。")}
+    ${cmt("User-B","ワクチンは安全だよ。デマを信じないで。")}
+    ${cmt("友人B",`<span style="color:#3b6ea5;">@User-B</span>こそおかしい。これだけ多くの人が「ワクチンは危険だ」と言ってるのに。退場！！！${B("echo")}`)}
+    ${endBtn()}
+  </div>`;}
+}
+];
+
+function cmt(name, text){
+  return `<div class="cmt"><div class="av">👤</div><div><div class="cn">@${name}</div><div class="ct">${text}</div></div></div>`;
+}
+function endBtn(){
+  return `<div class="endrow"><button onclick="go('news')">ニュース選択に戻る</button></div>`;
+}
+
+/* ---------------- 練習教材 ---------------- */
+const PRACTICE_TATE = {
+  id:"p_tate", tab:"ミラクル研究所", needExpand:1,
+  bulbs:[{cat:"what", id:"pt_100"}],
+  notes:{
+    pt_100:{cat:"what", title:"「100％」「絶対」と言い切る表現（What）",
+      text:"科学の知識は、現在では最良のものですが、新しい研究によって、より正しいものに更新される可能性があります。そのため、本当の科学者は「100％」や「絶対」と言い切ることは、まずありません。「100％確実」「絶対に効く」という宣伝を見たら、まず疑ってみましょう。\nそして、この「100％確実！」は「…更に表示」を開いて、最後までスクロールしないと見つかりませんでした。怪しいポイントは記事のとちゅうや最後にかくれていることが多いのです。だからこそ、最後まで読む「縦読み」が大切なのです。"}
+  },
+  feed(){ return `<div class="sns">
+    <div class="authrow"><div class="av">🧪</div><div class="an">ミラクル脳科学研究所【公式】</div><div class="follow">FOLLOW</div><div class="dots">…</div></div>
+    <div class="sec"><div class="title" style="font-size:20px;">もう勉強は一切不要！飲むだけで誰でも天才に！</div>
+      　人類の長年の夢だった奇跡のドリンク「スーパー・ブレーンウォーター」が、ついに開発されました。<br>
+      　当研究所の最新の脳科学研究から生まれた、特別な水です。1日1本飲むだけで脳の記憶センターが目覚め、教科書を1回読むだけで、すべて覚えられるようになります。
+      <span class="morelink" data-x="pt">・・・更に表示</span>
+      <span class="moretext" style="display:none;">
+      <br>　今なら発売記念キャンペーンで、1本たったの9,800円！　テスト前のみなさん、急いで！
+      <span class="photo">
+        <span style="display:block; background:linear-gradient(135deg,#e0f2fe,#c7d2fe); border-radius:12px; padding:20px 12px; text-align:center; border:3px solid #6366f1;">
+          <span style="display:block; font-size:44px;">🧠✨🥤</span>
+          <span style="display:block; font-size:21px; font-weight:900; color:#1e3a8a; margin-top:4px;">スーパー・ブレーンウォーター</span>
+          <span style="display:block; font-size:14px; font-weight:800; color:#334155; margin-top:10px;">飲んだ人の成績アップ効果</span>
+          <span style="display:block; font-size:42px; font-weight:900; color:#dc2626; line-height:1.3;">100％確実！${prB("pt_100")}</span>
+          <span style="display:block; font-size:10.5px; color:#475569; margin-top:8px;">※ミラクル脳科学研究所しらべ</span>
+        </span>
+      </span>
+      </span>
+    </div>
+    <div class="statsrow"><div class="icons">♡ 💬 ✈️</div>
+      <div class="nums"><span>❤️ 1.2万 いいね</span><span>📤 3400 シェア</span></div></div>
+    ${cmt("User-A","すごい！これがあれば、もう勉強しなくていいんだ！")}
+    ${cmt("User-B","ほしいな。おこづかいで買えるかな…")}
+    ${cmt("User-C","どこで買えますか？？")}
+    ${cmt("User-D","えっ、そんなうまい話ある…？")}
+    <div class="endrow"><button onclick="finishPracticeTate()">次の説明に進む</button></div>
+  </div>`;}
+};
+function prB(id){ return `<span class="bslot practice-b hidden-b" data-pr="${id}"></span>`; }
+
+const PRACTICE_YOKO = {
+  id:"p_yoko", tab:"uni_org…",
+  feed(){ return `<div class="sns">
+    <div class="authrow"><div class="av">👤</div><div class="an">uni_organicvenus</div></div>
+    <div class="sec"><div class="title plink" data-open="search" style="font-size:19px;">Dooleのバナナ 遺伝子組み換えかどうかの見分け方</div>
+      輸入果物にシールが貼ってあるの。 バーコードの番号絶対覚えてね。<br>
+      　3か4で始まる番号＝化学肥料や農薬を使用<br>
+      　9で始まる番号＝オーガニック<br>
+      　8で始まる番号＝遺伝子組み換え作物<br>
+      役立ったら「いいね」と「フォロー」をお願いします。
+      <span class="photo"><img src="${PIC}banana.png" alt="バナナのシールの写真"></span>
+    </div>
+    <div class="statsrow"><div class="icons">♡ 💬 ✈️</div>
+      <div class="nums"><span>❤️ 2.4万 いいね</span><span>📤 2400 シェア</span></div></div>
+    <div class="endrow"><button onclick="go('practice')">練習メニューに戻る</button></div>
+  </div>`;},
+  searchPage(){ return `
+    <div class="searchhead"><div class="slogo"><span>S</span><span>E</span><span>A</span><span>R</span><span>C</span><span>H</span></div>
+      <div class="sbox">バナナ シール 遺伝子組み換え 見分け方</div></div>
+    <div class="sresult">
+      <div class="rs"><div class="rico">✅</div><div>日本ファクトチェックセンター<br><span class="rurl">https://www.factcheckcenter.jp › fact-check › lifestyle</span></div></div>
+      <div class="rt plink" data-open="fact">遺伝子組み換えバナナはシールの数字で見分けられる？ ...</div>
+      <div class="rsn">2025/05/19 — つまり、PLUコードで<b>遺伝子組み換え</b>作物かどうかを判断することはできない。よって、拡散した画像の主張「8で始まる番号=<b>遺伝子組み換え</b>」は誤りと判定 ...</div>
+    </div>
+    <div class="sresult">
+      <div class="rs"><div class="rico">▶️</div><div>YouTube · Japan Fruits Channel<br><span class="rurl">視聴回数: 120.6万 回以上 · 4年前</span></div></div>
+      <div class="rt">【知らないと損する！】バナナに貼ってあるシールの怖すぎる ...</div>
+      <div class="rsn">この数字を読み解くだけで、この海外産のフルーツが有機栽培なのか？化学肥料を使った栽培なのか？<b>遺伝子組み換え</b> ... 見極め方〜. 先人の言葉·2.9M ...</div>
+    </div>
+    <div class="sresult">
+      <div class="rs"><div class="rico">🍌</div><div>bananaga.me<br><span class="rurl">https://bananaga.me › 記事一覧</span></div></div>
+      <div class="rt">遺伝子組み換えばわかるはウソ？バナナのPLUコードについて ...</div>
+      <div class="rsn">2023/09/18 — 本記事では、<b>バナナ</b>に記載されているPLUコードの概要や<b>遺伝子組み換え</b>を判別することができない理由について詳しく解説していきました。 なんとなく遺伝子 ...</div>
+    </div>
+    <div style="margin:16px 12px; background:#dc2626; color:#fff; border-radius:12px; padding:12px 14px; font-size:13px; font-weight:800; line-height:1.8;">※ 本編の教材では「検索結果」はでません。指定のページが表示されます。</div>`;},
+  factPage(){ return `<div class="srcpage">
+    <h3 style="text-decoration:none; font-weight:800;">ファクトチェックセンター</h3>
+    <p style="font-size:16px; font-weight:700; line-height:1.9;">遺伝子組み換えバナナはシールの数字で見分けられる?<br>遺伝子組み換えを示す数字はない　【ファクトチェック】 ${prB("py_fact")}</p>
+    <span class="photo"><img src="${PIC}banana.png" alt="バナナのシールの写真"></span>
+    <div class="endrow" style="padding-right:0;"><button onclick="finishPracticeYoko()">次に進む</button></div>
+  </div>`;},
+  notes:{
+    py_fact:{cat:"who", title:"だれが言っているかをチェック（Who）",
+      text:"新しいタブで検索すると、ファクトチェック機関が「シールの数字では遺伝子組み換えは見分けられない（誤り）」と判定していました。元の投稿だけを見ていたら、信じてしまっていたかも。発信者や他のサイトを確かめるのが「横読み」です。"}
+  }
+};
+
+/* =====================================================================
+   画面遷移
+   ===================================================================== */
+const $main = document.getElementById("main");
+let screenName = "home";
+let stg = null;      // 進行中の教材の実行状態
+let testRun = null;
+
+function setNav(n){
+  ["home","zukan","log"].forEach(x=>document.getElementById("nav-"+x).classList.toggle("on", x===n));
+}
+function go(name){
+  if(preGateLocked() && (name==="practice" || name==="learn" || name==="news")){
+    name = "home";
+    setTimeout(promptPretest, 150);
+  }
+  screenName = name; stg = null; testRun = null;
+  hideCtx();
+  if(name==="home"){ setNav("home"); renderHome(); }
+  else if(name==="zukan"){ setNav("zukan"); renderZukan(); }
+  else if(name==="log"){ setNav("log"); renderLog(); }
+  else if(name==="learn"){ setNav(""); renderLearn(); }
+  else if(name==="practice"){ setNav(""); renderPracticeMenu(); }
+  else if(name==="news"){ setNav(""); renderNewsMenu(); }
+  window.scrollTo(0,0);
+}
+
+/* ---------------- ホーム（オープニング） ---------------- */
+function renderHome(){
+  renderScore();
+  const pre = S.tests.pre, post = S.tests.post;
+  const locked = preGateLocked();
+  const lockAttr = locked ? `style="opacity:.55;" onclick="promptPretest()"` : "";
+  let testCard = "";
+  if(PREPOST_ENABLED){
+    if(!pre){
+      testCard = `<div class="card menu-item" style="border:3px solid var(--accent2);" onclick="startTest('pre')">
+        <div class="mi">📝</div>
+        <div><div class="mt">まずは「事前テスト」を受けよう！</div>
+          <div class="md">学習前の力を測る12問（4択）です。<b>テストが終わると①②③が使えるようになります。</b></div></div>
+        <div class="arrow">▶</div>
+      </div>`;
+    } else if(!post){
+      const canPost = allBulbsDone();
+      testCard = canPost
+        ? `<div class="card menu-item" style="border:3px solid var(--accent2);" onclick="startTest('post')">
+            <div class="mi">🏁</div>
+            <div><div class="mt">④ 事後テストを受けよう！</div>
+              <div class="md">6つの教材をすべてやり終えました！最後に事後テスト（12問）で力だめし。事前テストは ${pre.score}/${pre.total} 問正解でした。</div></div>
+            <div class="arrow">▶</div>
+          </div>`
+        : `<div class="card menu-item" style="opacity:.75;" onclick="toast('🔒 6つの教材の電球すべて（クイズとチャレンジ問題）に答えると、事後テストが受けられるよ')">
+            <div class="mi">🔒</div>
+            <div><div class="mt">④ 事後テスト（まだ受けられません）</div>
+              <div class="md">事前テスト済み（${pre.score}/${pre.total}）。6つの教材の電球すべてに答えると受けられます（あと${remainingBulbQuestions()}問）。</div></div>
+          </div>`;
+    } else {
+      const diff = post.score - pre.score;
+      testCard = `<div class="card menu-item" onclick="showTestCompare()">
+        <div class="mi">📈</div>
+        <div><div class="mt">たしかめテスト 完了！</div>
+          <div class="md">事前 ${pre.score}/${pre.total} → 事後 ${post.score}/${post.total}（${diff>=0?"+":""}${diff}）。クリックでくわしく見る。</div></div>
+        <div class="arrow">▶</div>
+      </div>`;
+    }
+  }
+  $main.innerHTML = `
+  <div class="card" style="background:linear-gradient(135deg,#4f46e5,#9333ea); color:#fff; text-align:center; padding:34px 20px;">
+    <div style="font-size:56px;">🕵️🔎</div>
+    <div class="h1" style="color:#fff; font-size:26px; margin-top:8px;">ようこそ！科学メディアリテラシー探偵団へ</div>
+    <p style="margin-top:10px; font-size:14.5px; opacity:.95; line-height:1.9;">科学に関する情報が本当かどうかを見抜く力を付けよう！</p>
+    <div style="margin-top:12px; display:flex; justify-content:center; gap:14px; flex-wrap:wrap; font-size:12.5px; font-weight:700;">
+      <span style="background:rgba(255,255,255,.2); border-radius:999px; padding:5px 14px;">調査員：${S.name?esc(S.name):"未登録"} <a href="#" style="color:#fff;" onclick="askName();return false;">✏️</a></span>
+      <span style="background:rgba(255,255,255,.2); border-radius:999px; padding:5px 14px;">⭐ ${totalScore()}点／100点</span>
+    </div>
+  </div>
+  ${PREPOST_ENABLED && !pre ? testCard : ""}
+  <div class="card menu-item" ${locked?lockAttr:`onclick="go('practice')"`}>
+    <div class="mi">${locked?"🔒":"🏋️"}</div>
+    <div><div class="mt">① チェックの技を練習する！</div>
+      <div class="md">「縦読み」と「横読み」──情報をチェックする2つの技を練習します。
+      ${S.practice.tate?'<span style="color:#059669;font-weight:800;">✔縦読み済</span>':""} ${S.practice.yoko?'<span style="color:#059669;font-weight:800;">✔横読み済</span>':""}</div></div>
+    <div class="arrow">▶</div>
+  </div>
+  <div class="card menu-item" ${locked?lockAttr:`onclick="go('learn')"`}>
+    <div class="mi">${locked?"🔒":"💡"}</div>
+    <div><div class="mt">② 学び方を学ぶ！</div>
+      <div class="md">この教材の使い方・得点の集計方法・電球の色の意味を確認します。</div></div>
+    <div class="arrow">▶</div>
+  </div>
+  <div class="card menu-item" ${locked?lockAttr:`onclick="go('news')"`}>
+    <div class="mi">${locked?"🔒":"📱"}</div>
+    <div><div class="mt">③ 6つの教材にチャレンジ！</div>
+      <div class="md">SNSの科学ニュースを調査！ 電球のクイズに正解して、すべての電球を消そう。</div></div>
+    <div class="arrow">▶</div>
+  </div>
+  ${PREPOST_ENABLED && pre ? testCard : ""}
+  `;
+}
+function remainingBulbQuestions(){
+  let n=0;
+  Object.values(S.crit).forEach(c=>{ if(c.quiz===null)n++; if(c.challenge===null)n++; });
+  return n;
+}
+function promptPretest(){
+  openModal(`<div style="font-size:44px; text-align:center;">📝</div>
+    <div class="h1" style="text-align:center;">まずは「事前テスト」！</div>
+    <p style="font-size:14px; line-height:2; margin:12px 0;">学習をはじめる前に、いまの力を測る<b>12問のテスト（4択）</b>を受けよう。<br>点数が低くても大丈夫。学習のあとの「事後テスト」で、どれだけ成長したかが分かるよ！</p>
+    <button class="btn wide pink" onclick="closeModal();startTest('pre')">📝 事前テストをはじめる</button>`);
+}
+function promptPosttest(){
+  if(window._postPrompted) return;
+  window._postPrompted = true;
+  openModal(`<div style="font-size:44px; text-align:center;">🎓✨</div>
+    <div class="h1" style="text-align:center;">6つの教材をすべてやり終えた！</div>
+    <p style="font-size:14px; line-height:2; margin:12px 0;">おつかれさま！最後に<b>事後テスト（12問）</b>を受けて、事前テストからどれだけ成長したかを確かめよう。</p>
+    <button class="btn wide pink" onclick="closeModal();startTest('post')">🏁 事後テストをはじめる</button>
+    <button class="btn ghost wide" style="margin-top:8px;" onclick="closeModal()">あとで受ける（ホームの④から）</button>`);
+}
+function showTestCompare(){
+  const pre = S.tests.pre, post = S.tests.post;
+  if(!pre || !post) return;
+  const diff = post.score - pre.score;
+  openModal(`<div class="h1" style="text-align:center;">📈 事前 → 事後</div>
+    <div style="font-size:26px; font-weight:800; text-align:center; margin:12px 0;">${pre.score}点 → ${post.score}点
+      <span style="color:${diff>=0?"#059669":"#dc2626"};">（${diff>=0?"+":""}${diff}）</span></div>
+    <p class="small" style="text-align:center;">${diff>0?"すごい！学習の成果が出ているよ🎉":diff===0?"同じ点数。図鑑で復習してみよう！":"むずかしかったね。図鑑と漫画で復習しよう！"}</p>`);
+}
+function askName(){
+  openModal(`<div class="h2">🕵️ 調査員ネームを入力</div>
+    <p class="small" style="margin-bottom:10px;">学習のきろくに記録されます（ニックネームでOK）</p>
+    <input type="text" id="nameInput" value="${esc(S.name)}" placeholder="例：かがくたろう" maxlength="20">
+    <button class="btn wide" style="margin-top:12px;" onclick="setName()">けってい</button>`);
+  setTimeout(()=>{ const i=document.getElementById("nameInput"); if(i) i.focus(); },100);
+}
+function setName(){
+  S.name = document.getElementById("nameInput").value.trim();
+  logEv("set_name",{name:S.name}); save(); closeModal();
+  if(screenName==="home") renderHome(); else if(screenName==="log") renderLog();
+  if(screenName==="home" && preGateLocked()) setTimeout(promptPretest, 250);
+}
+
+/* ---------------- 学び方を学ぶ ---------------- */
+function renderLearn(){
+  logEv("learn_open");
+  $main.innerHTML = `
+  <button class="btn ghost" onclick="go('home')">◀ ホームに戻る</button>
+  <div class="card" style="margin-top:12px;">
+    <div class="h1">💡 学び方を学ぶ！</div>
+  </div>
+  <div class="card">
+    <div class="h2">1. この教材の使い方</div>
+    <ol style="font-size:14px; line-height:2.1; padding-left:22px;">
+      <li>「6つの教材にチャレンジ！」からニュースを選びます。</li>
+      <li><b>縦読み教材</b>：「・・・更に表示」をクリックして、コメントまで<b>最後までスクロール</b>すると、記事の中に電球💡が現れます。</li>
+      <li><b>横読み教材</b>：<span style="color:var(--purple); font-weight:800;">ムラサキの文字</span>をクリックして「新しいタブを開いて検索」。<b>すべてのタブを開く</b>と電球💡が現れます。</li>
+      <li>電球をクリックすると、クイズ（はい・いいえ の2択）が出ます。答えると解説と漫画が読めます。</li>
+      <li>「チャレンジ問題！」（4択）にも挑戦しましょう。</li>
+    </ol>
+    <div style="background:#eef2ff; border-radius:12px; padding:10px 14px; margin-top:10px; font-size:13px; font-weight:700; color:#4338ca; line-height:1.8;">
+      🏫 教室で使うときは：<b>「なぜこの場所に電球がついているのか」</b>を、まわりの人と話し合ってから答えましょう。おうちで一人でやるときは、じっくり考えてから答えよう。
+    </div>
+  </div>
+  <div class="card">
+    <div class="h2">2. 得点の集計方法</div>
+    <p style="font-size:14px; line-height:2;">
+      1つの電球には<b>クイズ</b>と<b>チャレンジ問題</b>の2問があります。クイズ正解で<b>2点</b>、チャレンジ問題正解で<b>3点</b>（1つの電球で5点）。<br>
+      電球は全部で20個 → <b>100点満点</b>！
+    </p>
+    <table class="logt" style="margin-top:8px;">
+      <tr><th>2問とも正解</th><td>電球が<b>消灯</b> ${miniBulb("how","off")}</td></tr>
+      <tr><th>1問だけ正解</th><td>電球が<b>半灯</b> ${miniBulb("how","half")}</td></tr>
+      <tr><th>2問とも不正解</th><td>電球は<b>点灯のまま</b> ${miniBulb("how","lit")}</td></tr>
+    </table>
+    <p style="margin-top:12px; font-size:16px; font-weight:800; color:var(--accent2); background:#fdf2f8; border-radius:12px; padding:12px 14px; line-height:2;">6つの教材をすべて終えると「再チャレンジ」が解放！半灯・点灯の電球（まちがえた問題）にもう一度挑戦して、得点を積み上げ、100点満点を目指そう。初回チャレンジの得点も、きちんと記録に残るよ！</p>
+  </div>
+  <div class="card">
+    <div class="h2">3. 電球の色（チェックポイントの分類）</div>
+    <p style="font-size:14px; line-height:2;">チェックポイントを3つに分けました。</p>
+    <table class="logt" style="margin:8px 0;">
+      <tr><td style="width:90px;"><b>What</b> ${miniBulb("what","lit")}</td><td>研究内容をチェック。</td></tr>
+      <tr><td><b>Who</b> ${miniBulb("who","lit")}</td><td>どの科学者が信頼できるかチェック。</td></tr>
+      <tr><td><b>How</b> ${miniBulb("how","lit")}</td><td>ネットの特徴的な表現と人の受け止め方をチェック。</td></tr>
+    </table>
+    <img src="${PIC}bulbcolor.png" alt="電球の色とチェックポイントの分類" style="width:100%; border-radius:12px; border:1px solid var(--line);">
+  </div>
+  <button class="btn wide pink" onclick="go('news')">📱 6つの教材にチャレンジ！</button>`;
+}
+function miniBulb(cat, state){
+  return `<span class="bslot" style="width:20px; height:27px;">${bulbSVG(cat,state)}</span>`;
+}
+
+/* ---------------- 練習メニュー ---------------- */
+function renderPracticeMenu(){
+  $main.innerHTML = `
+  <button class="btn ghost" onclick="go('home')">◀ ホームに戻る</button>
+  <div class="card" style="margin-top:12px;">
+    <div class="h1">🏋️ チェックの技を練習する！</div>
+    <p class="small" style="margin-top:6px;">情報をチェックする2つの技「縦読み」と「横読み」を、順番に練習しよう。</p>
+  </div>
+  <div class="card menu-item" onclick="startPractice('tate')">
+    <div class="mi">⬇️</div>
+    <div><div class="mt">縦読みの練習 ${S.practice.tate?"✅":""}</div>
+      <div class="md">「飲むだけで天才になれる？」の投稿を、<b>最後まで</b>読んでみよう。</div></div>
+    <div class="arrow">▶</div>
+  </div>
+  <div class="card menu-item" onclick="startPractice('yoko')">
+    <div class="mi">➡️</div>
+    <div><div class="mt">横読みの練習 ${S.practice.yoko?"✅":""}</div>
+      <div class="md">「バナナのシールで遺伝子組み換えがわかる？」を、<b>新しいタブで検索</b>して確かめよう。</div></div>
+    <div class="arrow">▶</div>
+  </div>`;
+}
+
+/* =====================================================================
+   ステージ実行（本編・練習 共通の骨組み）
+   ===================================================================== */
+function baseStageState(){
+  return {expanded:{}, unlocked:false, maxScroll:0, tabs:[], active:0, opened:{}, quiz:null};
+}
+
+/* ---------------- 練習：縦読み ---------------- */
+function startPractice(kind){
+  if(kind==="yoko") return startPracticeYoko();
+  stg = Object.assign(baseStageState(), {kind:"p_tate"});
+  logEv("practice_start",{kind:"tate"});
+  screenName="stage"; setNav("");
+  $main.innerHTML = `
+  <div class="stagewrap">
+    <div class="phonecol">
+      <button class="btn ghost" onclick="go('practice')" style="margin-bottom:10px;">◀ 練習メニューに戻る</button>
+      <div class="banner">⬇️ <b>縦読みの練習</b>：「・・・更に表示」をクリックして、<b>一番下まで</b>スクロールしよう。とちゅうでシェアしちゃダメだよ！</div>
+      <div class="phone">
+        <div class="bezel" id="bezel">${PRACTICE_TATE.bulbs.map(b=>`<span class="bslot practice-b hidden-b" data-pr="${b.id}" data-bezel="1"></span>`).join("")}</div>
+        <div class="pbody">
+          <div class="ptabs"><button class="ptab on">${PRACTICE_TATE.tab}</button></div>
+          <div class="pscreen" id="pscreen">${PRACTICE_TATE.feed()}</div>
+        </div>
+      </div>
+    </div>
+    <div class="qpanel" id="qpanel"></div>
+  </div>`;
+  bindStageEvents("practice");
+  updatePracticeBulbs();
+}
+function finishPracticeTate(){
+  if(!stg || !stg.unlocked){
+    toast("まだ電球が見つかっていないよ。「更に表示」を開いて最後まで読もう！");
+    return;
+  }
+  S.practice.tate = true; save(); logEv("practice_done",{kind:"tate"});
+  openModal(`<div style="font-size:44px; text-align:center;">⬇️✨</div>
+    <div class="h1" style="text-align:center;">縦読みの練習 クリア！</div>
+    <div style="background:#eef2ff; border-radius:12px; padding:14px; margin:14px 0; font-size:14px; line-height:2;">
+      <b>縦読みは、最後まで情報を確認する大切な方法です。</b><br>
+      ・最後まで確認せずにシェアしてはいけません。<br>
+      ・最後まで読む中で、怪しいポイントが見つかることも多いのです。
+    </div>
+    <button class="btn wide pink" onclick="closeModal();startPractice('yoko')">➡️ 横読みの練習へ進む</button>
+    <button class="btn ghost wide" style="margin-top:8px;" onclick="closeModal();go('practice')">練習メニューに戻る</button>`);
+}
+
+/* ---------------- 練習：横読み ---------------- */
+function startPracticeYoko(){
+  stg = Object.assign(baseStageState(), {kind:"p_yoko"});
+  stg.tabs = [{id:"post", label:PRACTICE_YOKO.tab}];
+  logEv("practice_start",{kind:"yoko"});
+  screenName="stage"; setNav("");
+  renderPracticeYoko();
+}
+function renderPracticeYoko(){
+  const tabsHtml = stg.tabs.map((t,i)=>`<button class="ptab ${i===stg.active?"on":""}" data-tab="${i}">${t.label}</button>`).join("");
+  let content = "";
+  const t = stg.tabs[stg.active];
+  if(t.id==="post") content = PRACTICE_YOKO.feed();
+  else if(t.id==="search") content = PRACTICE_YOKO.searchPage();
+  else if(t.id==="fact") content = PRACTICE_YOKO.factPage();
+  $main.innerHTML = `
+  <div class="stagewrap">
+    <div class="phonecol">
+      <button class="btn ghost" onclick="go('practice')" style="margin-bottom:10px;">◀ 練習メニューに戻る</button>
+      <div class="banner">➡️ <b>横読みの練習</b>：<span style="color:var(--purple);">ムラサキの文字</span>をクリック →「新しいタブを開いて検索」→ 検索結果の<span style="color:var(--purple);">ムラサキの文字</span>をクリックしよう。</div>
+      <div class="phone">
+        <div class="bezel" id="bezel"><span class="bslot practice-b hidden-b" data-pr="py_fact" data-bezel="1"></span></div>
+        <div class="pbody">
+          <div class="ptabs">${tabsHtml}</div>
+          <div class="pscreen" id="pscreen">${content}</div>
+        </div>
+      </div>
+    </div>
+    <div class="qpanel" id="qpanel"></div>
+  </div>`;
+  bindStageEvents("practice-yoko");
+  updatePracticeBulbs();
+}
+function practiceYokoOpen(target){
+  if(target==="search"){
+    if(!stg.tabs.find(t=>t.id==="search")) stg.tabs.push({id:"search", label:"SEARCH"});
+    stg.active = stg.tabs.findIndex(t=>t.id==="search");
+    logEv("practice_search_open");
+    renderPracticeYoko();
+  } else if(target==="fact"){
+    if(!stg.tabs.find(t=>t.id==="fact")) stg.tabs.push({id:"fact", label:"ファクト…"});
+    stg.active = stg.tabs.findIndex(t=>t.id==="fact");
+    stg.unlocked = true;
+    logEv("practice_fact_open");
+    renderPracticeYoko();
+    setTimeout(()=>{ toast("💡 電球が現れた！クリックしてみよう"); }, 350);
+  }
+}
+function finishPracticeYoko(){
+  if(!stg || !stg.unlocked){
+    toast("まだファクトチェックのページを開いていないよ！");
+    return;
+  }
+  if(!S.practice.yoko){ S.practice.yoko = true; save(); logEv("practice_done",{kind:"yoko"}); }
+  showPracticeYokoDone();
+}
+function showPracticeYokoDone(){
+  openModal(`<div style="font-size:44px; text-align:center;">➡️✨</div>
+    <div class="h1" style="text-align:center;">横読みの練習 クリア！</div>
+    <div style="background:#fce7f3; border-radius:12px; padding:14px; margin:14px 0; font-size:14px; line-height:2;">
+      <b>横読みは、今のサイトを離れて、新しいタブで検索する方法です。</b><br>
+      ・情報源（だれが言っているか）を確かめます。<br>
+      ・他のサイトで同じ話題があるかを確かめます。
+    </div>
+    <p class="small" style="background:#fef2f2; border-radius:10px; padding:10px;">※ 本編の6つの教材では「検索結果の一覧」は出ません。ムラサキの文字をクリックすると、指定のページが新しいタブに表示されます。</p>
+    <button class="btn wide pink" style="margin-top:10px;" onclick="closeModal();go('home')">ホームに戻る（教材にチャレンジ！）</button>
+    <button class="btn ghost wide" style="margin-top:8px;" onclick="closeModal()">とじる（ページを見る）</button>`);
+}
+function updatePracticeBulbs(){
+  document.querySelectorAll(".bslot.practice-b").forEach(el=>{
+    const id = el.dataset.pr;
+    const def = (PRACTICE_TATE.notes[id]) ? PRACTICE_TATE.notes[id] : PRACTICE_YOKO.notes[id];
+    el.innerHTML = bulbSVG(def.cat, "lit");
+    const show = el.dataset.bezel==="1" ? true : stg.unlocked;
+    el.classList.toggle("hidden-b", !show && el.dataset.bezel!=="1");
+    if(el.dataset.bezel!=="1" && show) el.classList.add("clickable");
+  });
+}
+function openPracticeNote(id){
+  const def = PRACTICE_TATE.notes[id] || PRACTICE_YOKO.notes[id];
+  logEv("practice_bulb",{id});
+  openModal(`<div style="text-align:center;">${miniBulb(def.cat,"lit")}</div>
+    <div class="h2" style="text-align:center; margin-top:6px;">${esc(def.title)}</div>
+    <p style="font-size:14px; line-height:2; margin-top:10px;">${esc(def.text)}</p>`);
+}
+
+/* ---------------- ニュース選択 ---------------- */
+function renderNewsMenu(){
+  renderScore();
+  if(preGateLocked()){ go("home"); promptPretest(); return; }
+  if(PREPOST_ENABLED && allBulbsDone() && !S.tests.post) setTimeout(promptPosttest, 300);
+  const tate = NEWS.filter(n=>n.mode==="tate");
+  const yoko = NEWS.filter(n=>n.mode==="yoko");
+  function newsCard(n){
+    const locked = n.mode==="yoko" && !yokoUnlocked();
+    const bulbs = n.bulbs.map(cid=>`<span class="bslot" style="width:20px;height:27px;">${bulbSVG(CRITERIA[cid].cat, bulbState(cid))}</span>`).join("");
+    let ok=0; n.bulbs.forEach(cid=>{ if(S.crit[cid].quiz===true)ok++; if(S.crit[cid].challenge===true)ok++; });
+    const rank = stageRank(n);
+    const badge = rank ? `<span style="font-size:26px;" title="${rank==="gold"?"パーフェクト！":rank==="silver"?"クリア":"全問回答"}">${rank==="gold"?"🥇":rank==="silver"?"🥈":"🥉"}</span>` : "";
+    return `<div class="card newscard" style="${locked?"opacity:.55;":""}" onclick="${locked?"toast(YOKO_LOCK_MSG)":`startNews('${n.id}')`}">
+      <div class="ni">${locked?"🔒":n.icon}</div>
+      <div><div class="nt">${esc(n.title)} ${badge}</div>
+        <div class="bulbs">${bulbs}</div></div>
+      <div style="margin-left:auto; text-align:right;">
+        <div style="font-size:12px; font-weight:800; color:var(--sub);">${ok}/${n.bulbs.length*2}問</div>
+        <div class="arrow" style="font-size:18px; color:var(--sub);">▶</div></div>
+    </div>`;
+  }
+  $main.innerHTML = `
+  <button class="btn ghost" onclick="go('home')">◀ ホームに戻る</button>
+  <div class="card" style="margin-top:12px;">
+    <div class="h1">📱 6つの教材にチャレンジ！</div>
+    <p class="small" style="margin-top:6px;">まずは<b>縦読み教材</b>から。クイズに正解して電球を消そう（2問正解で消灯・1問で半灯）。6つすべてを終えると、まちがえた電球への「再チャレンジ」が解放されるよ！</p>
+    <p class="small" style="margin-top:4px;">学習ランクバッジ：🥇＝全部の電球を消した（満点） ／ 🥈＝全部答えて得点あり ／ 🥉＝全部答えた</p>
+  </div>
+  <div class="h2" style="margin:4px 2px 10px;"><span class="tagline tate">縦読み教材</span>最後までスクロールして調べよう</div>
+  ${tate.map(newsCard).join("")}
+  <div class="h2" style="margin:16px 2px 10px;"><span class="tagline yoko">横読み教材</span>ムラサキの文字から新しいタブで調べよう${yokoUnlocked()?"":"　🔒（縦読み3教材が終わると解放）"}</div>
+  ${yoko.map(newsCard).join("")}`;
+}
+
+/* ---------------- 本編ステージ ---------------- */
+function newsById(id){ return NEWS.find(n=>n.id===id); }
+
+/* 学習ランク：gold=パーフェクト／silver=全問回答＋得点あり／bronze=全問回答（得点なし）／null=未完了 */
+function stageRank(n){
+  const done = n.bulbs.every(cid=>S.crit[cid].quiz!==null && S.crit[cid].challenge!==null);
+  if(!done) return null;
+  if(n.bulbs.every(cid=>bulbState(cid)==="off")) return "gold";
+  let ok=0; n.bulbs.forEach(cid=>{ if(S.crit[cid].quiz===true)ok++; if(S.crit[cid].challenge===true)ok++; });
+  return ok>0 ? "silver" : "bronze";
+}
+
+function startNews(id){
+  const n = newsById(id);
+  if(n.mode==="yoko" && !yokoUnlocked()){ toast(YOKO_LOCK_MSG); return; }
+  stg = Object.assign(baseStageState(), {kind:"news", id});
+  stg.tabs = [{id:"post", label:n.tab}];
+  logEv("stage_open",{stage:id});
+  screenName="stage"; setNav("");
+  renderStage();
+}
+function renderStage(){
+  const n = newsById(stg.id);
+  const tabsHtml = stg.tabs.map((t,i)=>`<button class="ptab ${i===stg.active?"on":""}" data-tab="${i}">${t.label}</button>`).join("");
+  const t = stg.tabs[stg.active];
+  let content = "";
+  if(t.id==="post") content = n.feed();
+  else content = n.sources.find(s=>s.id===t.id).page();
+  const banner = n.mode==="tate"
+    ? `⬇️ <b>縦読み</b>：「・・・更に表示」を開いて、<b>一番下まで</b>スクロールすると電球が現れるよ。`
+    : `➡️ <b>横読み</b>：<span style="color:var(--purple);">ムラサキの文字</span>をクリックして、<b>すべてのタブ</b>を開くと電球が現れるよ。`;
+  $main.innerHTML = `
+  <div class="stagewrap">
+    <div class="phonecol">
+      <button class="btn ghost" onclick="go('news')" style="margin-bottom:10px;">◀ ニュース選択に戻る</button>
+      <div class="banner">${n.icon} <b>${esc(n.title)}</b> ─ ${banner}</div>
+      <div class="phone">
+        <div class="bezel" id="bezel">${n.bulbs.map(cid=>`<span class="bslot stage-b" data-crit="${cid}" data-bezel="1"></span>`).join("")}</div>
+        <div class="pbody">
+          <div class="ptabs">${tabsHtml}</div>
+          <div class="pscreen" id="pscreen">${content}</div>
+        </div>
+      </div>
+    </div>
+    <div class="qpanel" id="qpanel"></div>
+  </div>`;
+  bindStageEvents("news");
+  updateStageBulbs();
+  if(stg.quiz) renderQuizPanel();
+}
+/* 展開状態を保ったまま再描画したあと復元 */
+function restoreExpanded(){
+  Object.keys(stg.expanded).forEach(x=>{
+    const link = document.querySelector(`.morelink[data-x="${x}"]`);
+    if(link){ link.style.display="none";
+      const mt = link.parentElement.querySelector(".moretext");
+      if(mt) mt.style.display="inline"; }
+  });
+}
+
+/* ---------------- ステージ共通イベント ---------------- */
+function bindStageEvents(mode){
+  const ps = document.getElementById("pscreen");
+  if(!ps) return;
+  restoreExpanded();
+  ps.addEventListener("click", (e)=>{
+    const more = e.target.closest(".morelink");
+    if(more){
+      stg.expanded[more.dataset.x] = true;
+      more.style.display = "none";
+      const mt = more.parentElement.querySelector(".moretext");
+      if(mt) mt.style.display = "inline";
+      logEv("expand_more",{stage:stg.id||stg.kind, key:more.dataset.x});
+      stg.maxScroll = 0;   /* 展開で本文が伸びるため、スクロール達成度を測り直す */
+      checkTate();
+      return;
+    }
+    const pl = e.target.closest(".plink");
+    if(pl){ onPurpleClick(pl, mode); return; }
+    const pb = e.target.closest(".bslot.practice-b");
+    if(pb && !pb.classList.contains("hidden-b") && pb.dataset.bezel!=="1"){ openPracticeNote(pb.dataset.pr); return; }
+    const sb = e.target.closest(".bslot.stage-b");
+    if(sb && !sb.classList.contains("hidden-b") && sb.dataset.bezel!=="1"){ openQuiz(sb.dataset.crit); return; }
+  });
+  ps.addEventListener("scroll", ()=>{ checkTate(); });
+  // タブ切り替え
+  document.querySelectorAll(".ptab").forEach(el=>{
+    el.addEventListener("click", ()=>{
+      const i = Number(el.dataset.tab);
+      if(Number.isNaN(i)) return;
+      stg.active = i;
+      if(stg.kind==="p_yoko") renderPracticeYoko(); else renderStage();
+    });
+  });
+  checkTate();
+}
+function checkTate(){
+  if(!stg) return;
+  const kind = stg.kind;
+  const isTateStage = (kind==="p_tate") || (kind==="news" && newsById(stg.id).mode==="tate");
+  if(!isTateStage || stg.unlocked) return;
+  const need = (kind==="p_tate") ? PRACTICE_TATE.needExpand : newsById(stg.id).needExpand;
+  const ps = document.getElementById("pscreen");
+  if(!ps) return;
+  const max = ps.scrollHeight - ps.clientHeight;
+  const p = max<=10 ? 1 : ps.scrollTop/max;
+  if(p > stg.maxScroll) stg.maxScroll = p;
+  if(Object.keys(stg.expanded).length >= need && stg.maxScroll >= 0.98){
+    stg.unlocked = true;
+    logEv("tate_complete",{stage:stg.id||stg.kind});
+    if(kind==="p_tate") updatePracticeBulbs(); else updateStageBulbs(true);
+    toast("💡 電球が現れた！クリックしてクイズに挑戦しよう");
+  }
+}
+function onPurpleClick(el, mode){
+  const target = el.dataset.open;
+  if(mode==="practice-yoko"){
+    if(target==="search"){ showCtx(el, ()=>practiceYokoOpen("search")); }
+    else { practiceYokoOpen(target); }
+    return;
+  }
+  // 本編：確認メニュー → 指定タブを開く
+  showCtx(el, ()=>{
+    const ids = target.split(",");
+    const n = newsById(stg.id);
+    ids.forEach(srcId=>{
+      const src = n.sources.find(s=>s.id===srcId);
+      if(!src) return;
+      if(!stg.tabs.find(t=>t.id===srcId)) stg.tabs.push({id:srcId, label:src.tab});
+      stg.opened[srcId] = true;
+      logEv("tab_open",{stage:stg.id, source:srcId});
+    });
+    stg.active = stg.tabs.findIndex(t=>t.id===ids[0]);
+    const allOpen = n.sources.every(s=>stg.opened[s.id]);
+    if(allOpen && !stg.unlocked){
+      stg.unlocked = true;
+      logEv("yoko_complete",{stage:stg.id});
+      setTimeout(()=>toast("💡 すべてのタブを開いた！電球が現れた！"), 350);
+    }
+    renderStage();
+  });
+}
+/* コンテキストメニュー */
+function showCtx(el, onOpen){
+  const m = document.getElementById("ctxmenu");
+  m.innerHTML = `<button id="ctx-open">新しいタブを開いて検索</button><button id="ctx-cancel">やめる</button>`;
+  const r = el.getBoundingClientRect();
+  m.style.display = "block";
+  m.style.left = Math.min(r.left, window.innerWidth-250) + "px";
+  m.style.top = (r.bottom + 4) + "px";
+  document.getElementById("ctx-open").onclick = ()=>{ hideCtx(); onOpen(); };
+  document.getElementById("ctx-cancel").onclick = ()=>{ hideCtx(); logEv("ctx_cancel"); };
+  setTimeout(()=>{
+    document.addEventListener("click", ctxOutside, {once:true});
+  },0);
+}
+function ctxOutside(e){ if(!e.target.closest("#ctxmenu")) hideCtx(); }
+function hideCtx(){ const m=document.getElementById("ctxmenu"); if(m) m.style.display="none"; }
+
+/* 電球の表示更新 */
+function updateStageBulbs(pop){
+  if(!stg || stg.kind!=="news") return;
+  const n = newsById(stg.id);
+  document.querySelectorAll(".bslot.stage-b").forEach(el=>{
+    const cid = el.dataset.crit;
+    el.innerHTML = bulbSVG(CRITERIA[cid].cat, bulbState(cid));
+    if(el.dataset.bezel==="1") return;
+    const show = stg.unlocked;
+    el.classList.toggle("hidden-b", !show);
+    if(show){ el.classList.add("clickable"); if(pop) el.classList.add("pop"); }
+  });
+}
+
+/* =====================================================================
+   クイズパネル
+   ===================================================================== */
+function openQuiz(critId){
+  const c = S.crit[critId];
+  let step;
+  if(c.quiz===null) step = "quiz";
+  else if(c.challenge===null) step = "chal-direct";
+  else if(!allBulbsDone()) step = "locked";
+  else if(c.quiz===true && c.challenge===true) step = "done";
+  else if(c.quiz===true) step = "chal-direct";
+  else step = "quiz";
+  stg.quiz = {crit:critId, step, quizAnswer:null, chalAnswer:null};
+  logEv("bulb_click",{stage:stg.id, crit:critId, state:bulbState(critId)});
+  renderQuizPanel();
+  const qp = document.getElementById("qpanel");
+  if(qp) qp.scrollTop = 0;
+}
+function renderQuizPanel(){
+  const qp = document.getElementById("qpanel");
+  if(!qp || !stg.quiz) return;
+  const q = stg.quiz;
+  const cr = CRITERIA[q.crit];
+  let html = "";
+
+  if(q.step==="quiz"){
+    html = `<div class="qhead">クイズ</div>
+      <div class="qq"><span class="fing">👉</span><span>${esc(cr.statement)}</span></div>
+      <div class="ynrow">
+        <button onclick="answerQuiz(true)">はい</button>
+        <button onclick="answerQuiz(false)">いいえ</button>
+      </div>`;
+  }
+  else if(q.step==="fb"){
+    const correct = q.quizAnswer===cr.answer;
+    const title = correct ? `<div class="fbtitle good">正解！解説を確認しよう。</div>`
+      : `<div class="fbtitle bad">残念！解説を確認しよう。</div>`;
+    html = `<div class="qhead">クイズ</div>
+      <div class="qq"><span class="fing">👉</span><span>${esc(cr.statement)}<br><span style="font-size:12.5px; color:var(--sub);">正解は「<b>${cr.answer?"はい":"いいえ"}</b>」</span></span></div>
+      <div class="fbbox">${title}
+        <div class="kh">＜解説＞</div>
+        <div class="ktext">${nl(cr.expl)}</div>
+        ${mangaHTML(cr)}
+      </div>
+      ${S.crit[q.crit].challenge===true
+        ? `<button class="closebtn" onclick="closeQuiz()">閉じる</button>`
+        : `<button class="chalbtn" onclick="toChallenge()">チャレンジ問題！</button>`}`;
+  }
+  else if(q.step==="chal-direct"){
+    html = `<div class="qhead">再チャレンジ</div>
+      <div class="qq"><span class="fing">👉</span><span>${esc(cr.statement)}<br><span style="font-size:12.5px; color:var(--sub);">クイズは${S.crit[q.crit].quiz===true?"正解":"回答"}ずみ（正解は「${cr.answer?"はい":"いいえ"}」）。チャレンジ問題に${S.crit[q.crit].chalTry>0?"再挑戦":"挑戦"}しよう！</span></span></div>
+      <button class="chalbtn" onclick="toChallenge()">チャレンジ問題！</button>
+      <button class="closebtn" onclick="closeQuiz()">閉じる</button>`;
+  }
+  else if(q.step==="chal"){
+    html = `<div class="qhead">チャレンジ問題</div>
+      <div class="chalbox">
+        <div class="chq"><span>👉</span><span>${esc(cr.challenge.q)}</span></div>
+        ${cr.challenge.choices.map((cc,i)=>`<button class="cc" onclick="answerChallenge(${i})">${i+1}. ${esc(cc)}</button>`).join("")}
+      </div>`;
+  }
+  else if(q.step==="chal-fb"){
+    const ok = q.chalAnswer===cr.challenge.correct;
+    html = `<div class="qhead">チャレンジ問題</div>
+      <div class="chalbox">
+        <div class="chq"><span>👉</span><span>${esc(cr.challenge.q)}</span></div>
+        ${cr.challenge.choices.map((cc,i)=>{
+          let cls = "";
+          if(i===cr.challenge.correct) cls = "sel-right";
+          else if(i===q.chalAnswer) cls = "sel-wrong";
+          return `<button class="cc ${cls}">${i+1}. ${esc(cc)}</button>`;}).join("")}
+        <div class="cjudge">${ok?"🎉 正解！　+3点":"😢 残念！　正解は「"+(cr.challenge.correct+1)+"」"}</div>
+        <button class="closebtn" onclick="closeQuiz()">閉じる</button>
+      </div>`;
+  }
+  else if(q.step==="locked"){
+    const st = S.crit[q.crit];
+    const mk = v => v===true?"⭕":"❌";
+    html = `<div class="qhead">回答ずみ</div>
+      <div class="qq"><span class="fing">👉</span><span>${esc(cr.statement)}<br><span style="font-size:12.5px; color:var(--sub);">クイズ ${mk(st.quiz)}　チャレンジ問題 ${mk(st.challenge)}（正解は「${cr.answer?"はい":"いいえ"}」）</span></span></div>
+      <div class="fbbox"><div class="kh">＜解説＞</div>
+        <div class="ktext">${nl(cr.expl)}</div>
+        ${mangaHTML(cr)}
+      </div>
+      <div style="background:#eef2ff; border-radius:12px; padding:10px 14px; margin-top:12px; font-size:13px; font-weight:800; color:#4338ca; line-height:1.8;">🔒 まちがえた問題への再チャレンジは、6つの教材をすべて終えると解放されるよ！</div>
+      <button class="closebtn" onclick="closeQuiz()">閉じる</button>`;
+  }
+  else if(q.step==="done"){
+    html = `<div class="qhead">クリア済み ✅</div>
+      <div class="qq"><span class="fing">👉</span><span>${esc(cr.statement)}<br><span style="font-size:12.5px; color:var(--sub);">この電球は2問とも正解して消灯済み！解説と漫画を復習できるよ。</span></span></div>
+      <div class="fbbox"><div class="kh">＜解説＞</div>
+        <div class="ktext">${nl(cr.expl)}</div>
+        ${mangaHTML(cr)}
+      </div>
+      <button class="closebtn" onclick="closeQuiz()">閉じる</button>`;
+  }
+  qp.innerHTML = html;
+  qp.classList.add("show");
+}
+/* 漫画（複数枚のときは間にテキストを挟める） */
+function mangaHTML(cr){
+  let h = "";
+  cr.manga.forEach((m,i)=>{
+    if(i===1 && cr.between) h += `<div style="background:#eef2ff; border-radius:10px; padding:10px 14px; margin-top:12px; font-size:14px; font-weight:700; line-height:1.9;">${esc(cr.between)}</div>`;
+    h += `<img src="${PIC}${m}" alt="解説漫画" loading="lazy">`;
+  });
+  return h;
+}
+function answerQuiz(ans){
+  const q = stg.quiz, cr = CRITERIA[q.crit], st = S.crit[q.crit];
+  const correct = ans===cr.answer;
+  q.quizAnswer = ans;
+  st.quizTry++;
+  st.quiz = correct;
+  if(st.quizTry===1) st.quizFirst = correct;
+  else if(correct) retryGain();
+  save();
+  logEv("quiz_answer",{stage:stg.id, crit:q.crit, choice:ans?"yes":"no", correct, try:st.quizTry});
+  q.step = "fb";
+  renderQuizPanel(); renderScore(); updateStageBulbs();
+  document.getElementById("qpanel").scrollTop = 0;
+}
+function toChallenge(){
+  stg.quiz.step = "chal";
+  renderQuizPanel();
+  document.getElementById("qpanel").scrollTop = 0;
+}
+function answerChallenge(i){
+  const q = stg.quiz, cr = CRITERIA[q.crit], st = S.crit[q.crit];
+  const correct = i===cr.challenge.correct;
+  q.chalAnswer = i;
+  st.chalTry++;
+  st.challenge = correct;
+  if(st.chalTry===1) st.chalFirst = correct;
+  else if(correct) retryGain();
+  save();
+  logEv("challenge_answer",{stage:stg.id, crit:q.crit, choice:i+1, correct, try:st.chalTry});
+  q.step = "chal-fb";
+  renderQuizPanel(); renderScore(); updateStageBulbs();
+}
+function closeQuiz(){
+  stg.quiz = null;
+  const qp = document.getElementById("qpanel");
+  qp.classList.remove("show");
+  updateStageBulbs();
+  const gDone = allBulbsDone();
+  if(gDone && Object.keys(CRITERIA).every(id=>bulbState(id)==="off") && !S.perfectPraised){
+    S.perfectPraised = true; S.retryShown = true; save();
+    grandPraiseModal();
+    return;
+  }
+  if(gDone && !S.retryShown){
+    S.retryShown = true; save();
+    retryUnlockModal();
+    return;
+  }
+  const n = stg.kind==="news" ? newsById(stg.id) : null;
+  if(n){
+    const allOff = n.bulbs.every(cid=>bulbState(cid)==="off");
+    if(allOff && !stg.congrats){
+      stg.congrats = true;
+      logEv("stage_all_off",{stage:stg.id});
+      openModal(`<div style="font-size:48px; text-align:center;">🎉💡🎉</div>
+        <div class="h1" style="text-align:center;">「${esc(n.title)}」の電球を全部消した！</div>
+        <p class="small" style="text-align:center; margin-top:8px;">パーフェクト！次のニュースも調査しよう。</p>
+        <button class="btn wide pink" style="margin-top:12px;" onclick="closeModal();go('news')">ニュース選択に戻る</button>
+        <button class="btn ghost wide" style="margin-top:8px;" onclick="closeModal()">この記事をもう一度見る</button>`);
+    }
+    else if(!allOff && !stg.encouraged && n.bulbs.every(cid=>S.crit[cid].quiz!==null && S.crit[cid].challenge!==null)){
+      stg.encouraged = true;
+      const remain = n.bulbs.filter(cid=>bulbState(cid)!=="off").length;
+      logEv("stage_encourage",{stage:stg.id, remain});
+      if(allBulbsDone()){
+        openModal(`<div style="font-size:48px; text-align:center;">🔁💪</div>
+          <div class="h1" style="text-align:center;">おしい！あと${remain}個の電球が残っているよ</div>
+          <p style="font-size:14px; line-height:2; text-align:center; margin-top:10px;"><b style="color:var(--accent2);">再チャレンジして満点を目指そう！</b><br>半灯・点灯の電球をもう一度クリックすると、まちがえた問題に再挑戦できるよ。<br><span style="font-size:12.5px; color:var(--sub);">初回 ${firstScore()}点 → 現在 ${totalScore()}点</span></p>
+          <button class="btn wide pink" style="margin-top:12px;" onclick="closeModal()">🔁 再チャレンジする！</button>
+          <button class="btn ghost wide" style="margin-top:8px;" onclick="closeModal();go('news')">ニュース選択に戻る</button>`);
+      } else {
+        openModal(`<div style="font-size:48px; text-align:center;">📋✅</div>
+          <div class="h1" style="text-align:center;">この${'教材'}の電球ぜんぶに答えた！</div>
+          <p style="font-size:14px; line-height:2; text-align:center; margin-top:10px;">のこりの${'教材'}も調査しよう。<br><b>6つすべてを終えると、まちがえた問題への「再チャレンジ」が解放されるよ！</b></p>
+          <button class="btn wide pink" style="margin-top:12px;" onclick="closeModal();go('news')">つぎへ進む！</button>
+          <button class="btn ghost wide" style="margin-top:8px;" onclick="closeModal()">この記事をもう一度見る</button>`);
+      }
+    }
+  }
+}
+
+/* =====================================================================
+   チェックポイント図鑑
+   ===================================================================== */
+function renderZukan(){
+  renderScore();
+  logEv("zukan_open");
+  function sec(catId){
+    const c = CATS[catId];
+    const sc = catScore(catId);
+    const items = Object.entries(CRITERIA).filter(([id,cr])=>cr.cat===catId);
+    return `<div class="zsec">
+      <div class="zhead">
+        ${miniBulb(catId,"lit")}<span class="zt" style="color:${c.color};">${c.label}</span>
+        <span style="font-size:13px; font-weight:700;">${esc(c.desc)}（${esc(c.q)}）</span>
+        <span class="zscore">得点 ${sc.ok}点／${sc.all}点</span>
+      </div>
+      <div class="zgrid">
+        ${items.map(([id,cr])=>{
+          const st = S.crit[id];
+          const state = bulbState(id);
+          const status = state==="off" ? "✅ 2問クリア" : state==="half" ? "あと1問！" : (st.quizTry+st.chalTry>0?"再挑戦しよう":"未挑戦");
+          const bg = state==="off" ? "#fce7f3" : state==="half" ? "#fef9c3" : "#fff";
+          return `<div class="zcard" style="background:${bg};" onclick="openZukanCard('${id}')">
+            <span class="bslot" style="width:24px;height:32px;">${bulbSVG(catId,state)}</span>
+            <div><div class="zn">${esc(cr.name)}</div><div class="zs">${status}</div></div>
+          </div>`;}).join("")}
+      </div>
+    </div>`;
+  }
+  $main.innerHTML = `
+  <div class="card">
+    <div class="h1">📖 チェックポイント図鑑</div>
+    <p class="small" style="margin-top:6px;">科学の情報をチェックする20の観点を、<b>What・Who・How</b>の3つに分類。カードをクリックすると解説と漫画が読めます。電球を消す（クイズ2問正解）と✅になるよ。</p>
+  </div>
+  ${sec("what")}${sec("who")}${sec("how")}`;
+}
+function openZukanCard(id){
+  const cr = CRITERIA[id];
+  const st = S.crit[id];
+  logEv("zukan_view",{crit:id});
+  const mark = v => v===true?"⭕":v===false?"❌":"─";
+  openModal(`<div style="text-align:center;">${miniBulb(cr.cat, bulbState(id))}</div>
+    <div class="h1" style="text-align:center; font-size:19px;">${esc(cr.name)}</div>
+    <p class="small" style="text-align:center;">分類：${CATS[cr.cat].label}（${esc(CATS[cr.cat].desc)}）／ クイズ ${mark(st.quiz)}・チャレンジ ${mark(st.challenge)}</p>
+    <div style="background:#eef2ff; border-radius:12px; padding:14px; margin:12px 0; font-size:14px; line-height:2; white-space:pre-line;">${esc(cr.expl)}</div>
+    ${mangaHTML(cr)}`);
+}
+
+/* =====================================================================
+   たしかめテスト（プレ／ポスト）
+   ===================================================================== */
+const PREPOST = [
+ {crit:"kakusan", q:"SNSなどで見かける「拡散希望」という言葉には、どのような特徴や目的があることが多いですか？",
+  choices:["科学的に正しいことが証明された情報にのみ付けられる","人の感情（驚き、怒り、悲しみなど）を刺激して、冷静な判断をさせずに広めようとする","国や警察などの公的機関が、必ず使うように決めている言葉である","「これ以上は広めないでほしい」という意味の合言葉である"], correct:1},
+ {crit:"image", q:"インターネットや広告で、白衣を着た人が「この成分は体に良い」と言っている写真を見ました。このとき、最初に考えるべきことは何ですか？",
+  choices:["白衣を着ているので、この人は間違いなく本物の医師である","科学的な雰囲気を感じるので、内容は100%信頼できる","信頼させるための「演出（イメージ画像）」かもしれないと疑ってみる","有名な病院の先生に違いないので、すぐに友達に教える"], correct:2},
+ {crit:"shinyaku", q:"ニュースで「試験管を使った実験で、病気の原因となるウイルスを全滅させることに成功！」という発表がありました。このニュースをどう捉えるべきですか？",
+  choices:["試験管で成功したのだから、すぐに人間への治療が始まると期待して良い","まだ開発の初期段階（基礎研究）であり、人間に効くかどうかはこれからの長い研究で確かめる必要がある","試験管でウイルスが消えたなら、それはすでに「薬」として完成していると言える","試験管の実験は科学的な根拠にはならないので、完全に無視して良い"], correct:1},
+ {crit:"kocho", q:"SNSで「ついにがんが完治！」「飲むだけで10kg痩せる！」といった、非常に驚くようなタイトルの記事が流れてきました。発信者が大げさなタイトルを付ける一番の目的は何だと考えられますか？",
+  choices:["科学的に最も正確な事実を伝えるため","読み手の注意を引き、記事をクリック（閲覧）させるため","難しい論文の内容を、中学生にも分かりやすく要約するため","読んだ人が後でがっかりしないように、あらかじめ期待させるため"], correct:1},
+ {crit:"joken", q:"あるSNSで「牛乳を飲んだ中学生10人は、飲まなかった幼稚園児10人より計算テストの結果が良かった。だから牛乳は脳に効く！」という投稿がありました。この実験の「条件制御」として、最も大きな問題点はどこですか？",
+  choices:["牛乳の産地が書かれていないこと","どちらのグループも、計算テストを受けていること","計算テストの制限時間が同じであること","比べているグループの「年齢」という条件が大きく違っていること"], correct:3},
+ {crit:"graph", q:"グラフの縦軸に「波線」を入れて途中を省略しているものがあります。このようなグラフを見たときに、最も注意すべきことは何ですか？",
+  choices:["波線がある方が、最新のデータであることを示している","省略された部分があるため、小さな差がとても大きな差のように強調されている可能性がある","波線が入っているグラフは、すべて嘘のデータで作られている","波線はデザインの一種なので、グラフの意味には影響しない"], correct:1},
+ {crit:"iine", q:"SNSで、科学的な内容について「10万件のいいね」がついている投稿を見つけました。この「いいね」の数について、正しく説明しているものはどれですか？",
+  choices:["「いいね」が多いほど、その情報の科学的な信頼性は高くなる","「いいね」の数は、その情報に「賛成した人」や「面白いと思った人」の多さであり、内容が「正しいか」とは関係ない","1万件以上の「いいね」がついた情報は、専門家がチェック済みであることを示している","「いいね」が多い情報は、教科書に載っていることと同じくらい信頼できる"], correct:1},
+ {crit:"inga", q:"ある調査で「毎日読書をする生徒は、テストの点数が高い」という結果が出ました。この情報を読み解くとき、注意すべき点はどこですか？",
+  choices:["読書さえすれば、勉強しなくてもテストで満点が取れるということだ","「読書が好き」という理由以外に、「規則正しい学習習慣がある」などの別の共通した理由が、テストの点数に関係しているかもしれない","読書とテストの点数は、世界中の誰にでも当てはまる絶対的な法則である","この調査結果は100%嘘なので、信じてはいけない"], correct:1},
+ {crit:"media", q:"大手の新聞社やテレビ局などの「マスメディア」が科学ニュースを報じる際、一般的にどのようなプロセスを経て情報が発信されますか？",
+  choices:["記者がインターネットで見つけた情報を、そのまま書き写して放送する","科学ニュース専門の編集者や記者が、情報の信頼性を確かめたり、分かりやすく整理したりして発信している","視聴率を上げるために、科学的な根拠がなくても面白い話であればすぐにニュースにする","科学者が書いた難しい論文を、一字一句変えずにそのまま掲載する"], correct:1},
+ {crit:"consensus", q:"「科学的コンセンサス」という言葉の意味として、最も適切なものはどれですか？",
+  choices:["世界で一番有名な科学者が、たった一人で決めたルール","多くの専門家たちが、たくさんの証拠（エビデンス）に基づいて「これが現時点で最も正しい説明だ」と広く合意していること","インターネット上のアンケートで、一般の人が多数決で決めたこと","科学者たちが話し合って作った、面白い空想の物語"], correct:1},
+ {crit:"senmon", q:"「宇宙ロケットの開発」で有名な工学博士が、サプリメントの健康効果について解説しています。この状況にはどのようなリスクがあると考えられますか？",
+  choices:["ロケットを作れるほど頭が良いので、リスクは全くない","「博士」という肩書きがあることで、専門外の内容でも正しく聞こえてしまう（錯覚してしまう）リスク","ロケットの技術がサプリメントに応用されているはずなので、特に気にする必要はない","難しい話を分かりやすくしてくれるので、専門性は関係ないと考えるリスク"], correct:1},
+ {crit:"coi", q:"ある会社から研究費をもらって行われた研究の結果を見るとき、特に注意すべきことは何ですか？",
+  choices:["お金をもらって研究をすることは禁止されているので、その情報はすべて嘘である","研究費を出した会社にとって「都合の良い結果」が出るように、データの解釈が偏っている可能性がある","たくさんのお金をもらっている研究ほど、科学的に100%正しいことが保証されている","お金を出した会社の名前が有名であれば、内容は疑わなくて良い"], correct:1}
+];
+function startTest(kind){
+  if(!PREPOST_ENABLED) return;
+  if(S.tests[kind]){
+    toast(kind==="pre" ? "事前テストは実施済みです（" + S.tests.pre.score + "/" + S.tests.pre.total + "）" : "事後テストは実施済みです");
+    if(S.tests.pre && S.tests.post) showTestCompare();
+    return;
+  }
+  if(kind==="post" && !allBulbsDone()){
+    toast("🔒 6つの教材の電球すべてに答えると、事後テストが受けられるよ（あと" + remainingBulbQuestions() + "問）");
+    return;
+  }
+  testRun = {kind, idx:0, answers:[], score:0};
+  logEv("test_start",{kind});
+  screenName="test"; setNav("");
+  renderTest();
+}
+function renderTest(){
+  const q = PREPOST[testRun.idx];
+  const prog = PREPOST.map((_,k)=>`<i class="${k<testRun.idx?"done":""}"></i>`).join("");
+  $main.innerHTML = `
+  <div class="card" style="max-width:640px; margin:0 auto 16px;">
+    <div class="h2">📝 たしかめテスト（${testRun.kind==="pre"?"事前":"事後"}）　問${testRun.idx+1}／${PREPOST.length}</div>
+    <div class="qprog">${prog}</div>
+    <p style="font-size:15px; font-weight:800; line-height:1.9; margin-bottom:14px;">${esc(q.q)}</p>
+    ${q.choices.map((c,i)=>`<button class="choice4" onclick="answerTest(${i})">${i+1}. ${esc(c)}</button>`).join("")}
+  </div>`;
+  window.scrollTo(0,0);
+}
+function answerTest(i){
+  const q = PREPOST[testRun.idx];
+  const correct = i===q.correct;
+  if(correct) testRun.score++;
+  testRun.answers.push({crit:q.crit, choice:i, correct});
+  logEv("test_answer",{kind:testRun.kind, no:testRun.idx+1, crit:q.crit, choice:i+1, correct});
+  if(testRun.idx < PREPOST.length-1){ testRun.idx++; renderTest(); }
+  else finishTest();
+}
+function finishTest(){
+  const r = {score:testRun.score, total:PREPOST.length, at:new Date().toISOString(), answers:testRun.answers};
+  S.tests[testRun.kind] = r; save();
+  logEv("test_done",{kind:testRun.kind, score:r.score, total:r.total});
+  let compare = "";
+  if(S.tests.pre && S.tests.post){
+    const diff = S.tests.post.score - S.tests.pre.score;
+    compare = `<div class="card" style="text-align:center;">
+      <div class="h2">📈 事前 → 事後</div>
+      <div style="font-size:24px; font-weight:800;">${S.tests.pre.score}点 → ${S.tests.post.score}点
+        <span style="color:${diff>=0?"#059669":"#dc2626"};">（${diff>=0?"+":""}${diff}）</span></div>
+      <p class="small">${diff>0?"すごい！学習の成果が出ているよ🎉":diff===0?"同じ点数。図鑑で復習してみよう！":"むずかしかったね。図鑑と漫画で復習しよう！"}</p></div>`;
+  }
+  const kind = testRun.kind;
+  testRun = null;
+  $main.innerHTML = `
+  <div style="max-width:640px; margin:0 auto;">
+    <div class="card" style="text-align:center;">
+      <div style="font-size:48px;">${"🌟"}</div>
+      <div class="h1">${kind==="pre"?"事前":"事後"}テスト結果</div>
+      <div style="font-size:38px; font-weight:800; color:var(--accent); margin:8px 0;">${S.tests[kind].score} <span style="font-size:16px; color:var(--sub);">／ ${PREPOST.length}問</span></div>
+    </div>
+    ${compare}
+    ${kind==="pre" ? `<div class="card" style="text-align:center; background:#ecfdf5;">🔓 <b>①②③のメニューが使えるようになりました！</b><br><span class="small">まずは「①チェックの技を練習する！」から始めよう。</span></div>` : ""}
+    <button class="btn wide pink" onclick="go('home')">🏠 ホームに戻る${kind==="pre"?"（学習をはじめる！）":""}</button>
+  </div>`;
+  window.scrollTo(0,0);
+}
+
+/* =====================================================================
+   きろく（学習ログ）
+   ===================================================================== */
+function renderLog(){
+  renderScore();
+  const critRows = Object.entries(CRITERIA).map(([id,cr])=>{
+    const st = S.crit[id];
+    const mark = v => v===null?"─":(v?"⭕":"❌");
+    return `<tr><td>${miniBulb(cr.cat, bulbState(id))} ${esc(cr.name)}</td><td>${CATS[cr.cat].label}</td><td>${mark(st.quiz)}</td><td>${mark(st.challenge)}</td><td>${st.quizTry+st.chalTry}回</td></tr>`;
+  }).join("");
+  const pre = S.tests.pre, post = S.tests.post;
+  const w = catScore("what"), h = catScore("who"), o = catScore("how");
+  $main.innerHTML = `
+  <div class="card">
+    <div class="h2">🕵️ 調査員：${S.name?esc(S.name):"（未設定）"} <a href="#" style="font-size:12px;" onclick="askName();return false;">変更</a></div>
+    <div class="small">合計 <b style="color:#b45309;">⭐${totalScore()}点／100点</b>${allBulbsDone()?`　🔥 初回チャレンジ ${firstScore()}点 → 現在 ${totalScore()}点`:""}
+      ─ What ${w.ok}/${w.all}点 ・ Who ${h.ok}/${h.all}点 ・ How ${o.ok}/${o.all}点<br>
+      練習：縦読み${S.practice.tate?"✅":"─"} 横読み${S.practice.yoko?"✅":"─"} ／ 記録イベント数 ${S.events.length}件<br>
+      はじめた日：${S.createdAt?S.createdAt.slice(0,10):"─"} ／ 最終更新：${S.updatedAt?S.updatedAt.slice(0,16).replace("T"," "):"─"}</div>
+  </div>
+  <div class="card">
+    <div class="h2">💾 学習ログの保存と引きつぎ</div>
+    <p class="small" style="margin-bottom:10px;">「ダウンロード」でログファイル（JSON）を保存。次に使うときに「インポート」で読みこむと、続きから学習できます。</p>
+    <button class="btn wide" onclick="exportLog()">📥 学習ログをダウンロード（JSON）</button>
+    <button class="btn ghost wide" style="margin-top:8px;" onclick="document.getElementById('importFile').click()">📤 学習ログをインポート</button>
+    <input type="file" id="importFile" accept=".json,application/json" style="display:none;" onchange="importLog(this)">
+    <button class="btn ghost wide" style="margin-top:8px;" onclick="exportCsv()">🧾 回答データをCSVで出力（先生用）</button>
+    <button class="btn wide" style="margin-top:8px; background:#fee2e2; color:#b91c1c;" onclick="confirmReset()">🗑️ きろくをリセット</button>
+  </div>
+  ${PREPOST_ENABLED?`
+  <div class="card">
+    <div class="h2">📝 たしかめテスト</div>
+    <table class="logt"><tr><th></th><th>点数</th><th>実施日時</th></tr>
+      <tr><td>事前</td><td>${pre?`${pre.score}/${pre.total}`:"未実施"}</td><td>${pre?pre.at.slice(0,16).replace("T"," "):"─"}</td></tr>
+      <tr><td>事後</td><td>${post?`${post.score}/${post.total}`:"未実施"}</td><td>${post?post.at.slice(0,16).replace("T"," "):"─"}</td></tr>
+    </table>
+  </div>`:""}
+  <div class="card">
+    <div class="h2">💡 電球ごとの記録（⭕=正解 ❌=不正解 ─=未挑戦）</div>
+    <table class="logt"><tr><th>チェックポイント</th><th>分類</th><th>クイズ</th><th>チャレンジ</th><th>挑戦</th></tr>${critRows}</table>
+  </div>`;
+}
+function stamp(){
+  const d = new Date();
+  return d.getFullYear()+("0"+(d.getMonth()+1)).slice(-2)+("0"+d.getDate()).slice(-2)+"_"+("0"+d.getHours()).slice(-2)+("0"+d.getMinutes()).slice(-2);
+}
+function downloadFile(name, content, type){
+  const blob = new Blob([content], {type});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click();
+  setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 500);
+}
+function exportLog(){
+  logEv("export");
+  downloadFile(`SML学習ログ_${S.name||"名無し"}_${stamp()}.json`, JSON.stringify(S, null, 1), "application/json");
+  toast("📥 ダウンロードしました！ファイルは大切に保管してね");
+}
+function exportCsv(){
+  const rows = [["日時","種類","教材","チェックポイント","回答","正誤","その他"]];
+  S.events.forEach(e=>{
+    let extra = e.kind || e.source || e.name || (e.score!==undefined ? "score="+e.score : "") || (e.state||"") || (e.key||"");
+    rows.push([e.t, e.type, e.stage||"", e.crit||"",
+      e.choice!==undefined?String(e.choice):"", e.correct!==undefined?(e.correct?"正":"誤"):"", extra]);
+  });
+  const csv = "﻿"+rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(",")).join("\r\n");
+  downloadFile(`SML回答データ_${S.name||"名無し"}_${stamp()}.csv`, csv, "text/csv");
+  logEv("export_csv");
+}
+function importLog(input){
+  const f = input.files && input.files[0];
+  if(!f) return;
+  const reader = new FileReader();
+  reader.onload = ()=>{
+    try{
+      const st = JSON.parse(reader.result);
+      if(!st || st.version!==2 || !st.crit) throw new Error("bad format");
+      S = mergeState(st);
+      S.events.push({t:new Date().toISOString(), type:"import"});
+      save(); renderLog(); renderScore();
+      toast("📤 学習ログを読みこみました！おかえりなさい" + (S.name?"、"+S.name+"さん":"") + "！");
+    }catch(e){
+      toast("⚠️ 読みこめませんでした。このアプリで保存したJSONファイルを選んでね");
+    }
+    input.value = "";
+  };
+  reader.readAsText(f);
+}
+function confirmReset(){
+  openModal(`<div class="h2">🗑️ きろくをリセットする？</div>
+    <p class="small" style="margin:10px 0;">得点・電球の状態・テスト結果・ログがすべて消えます。心配なら先に「📥ダウンロード」で保存しておこう。</p>
+    <button class="btn wide" style="background:#ef4444;" onclick="doReset()">リセットする</button>
+    <button class="btn ghost wide" style="margin-top:8px;" onclick="closeModal()">やめる</button>`);
+}
+function doReset(){
+  S = defaultState(); save(); closeModal(); go("log");
+  toast("まっさらになりました！");
+}
+
+/* =====================================================================
+   起動
+   ===================================================================== */
+logEv("app_open");
+go("home");
+if(!S.name && S.events.filter(e=>e.type==="app_open").length<=1){
+  setTimeout(askName, 700);
+} else if(preGateLocked()){
+  setTimeout(promptPretest, 700);
+}
+</script>
+</body>
+</html>

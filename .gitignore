@@ -1,0 +1,11 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# エディタ・ツール
+.claude/
+.vscode/
+
+# 一時ファイル
+*.tmp
+~$*
