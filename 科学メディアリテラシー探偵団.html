@@ -199,6 +199,20 @@ input[type=text]{border:2px solid var(--line); border-radius:10px; padding:10px;
 .choice4{display:block; width:100%; text-align:left; background:#fff; border:2px solid var(--line); border-radius:12px; padding:12px 14px; font-size:14px; font-weight:700; margin-bottom:8px; cursor:pointer; line-height:1.6;}
 .choice4.correct{border-color:#059669; background:#ecfdf5;}
 .choice4.wrong{border-color:#dc2626; background:#fef2f2;}
+/* ---------- 研究用モード ---------- */
+.sidform{margin-top:14px;}
+.sidrow{display:flex; gap:10px; margin-bottom:10px;}
+.sidfield{flex:1;}
+.sidfield label{display:block; font-size:12px; font-weight:800; color:var(--accent); margin-bottom:4px;}
+.sidfield select, .sidfield input{
+  width:100%; border:2px solid var(--line); border-radius:10px; padding:10px;
+  font-size:16px; font-family:inherit; background:#fff; color:var(--ink);
+}
+.sidfield select:focus, .sidfield input:focus{border-color:var(--accent); outline:none;}
+.sidnote{background:#eef2ff; border-radius:10px; padding:10px 12px; font-size:12px; line-height:1.8; color:#4338ca; font-weight:700;}
+.siderr{color:#dc2626; font-size:13px; font-weight:800; margin-top:8px; min-height:19px;}
+.studychip{background:#fef3c7; color:#92400e; border-radius:999px; padding:4px 12px; font-size:12px; font-weight:800; display:inline-block;}
+#modal-root.locked .mback{cursor:default;}
 </style>
 </head>
 <body>
@@ -225,6 +239,25 @@ input[type=text]{border:2px solid var(--line); border-radius:10px; padding:10px;
    ===================================================================== */
 const PREPOST_ENABLED = false;     /* ←プレポストテストの有無（true=あり／false=なし） */
 const PIC = "pic/";
+
+/* =====================================================================
+   研究用モード（URLに ?study=A / B / C が付いたときだけ有効）
+   A＝通常版ペア（出席番号2名）／B＝通常版個別／C＝ゲーム版個別
+   パラメータが無い場合は一般公開版として動作し、送信は一切行わない。
+   ===================================================================== */
+const APP_EDITION = "通常版";
+/* ▼▼ 先生用：Google Apps ScriptのウェブアプリURLをここに貼り付けてください ▼▼ */
+const GAS_URL = "https://script.google.com/macros/s/AKfycbzIuj4XH5w2P8BLkMAQHDfvxOMYiYRItUa6jhOCTc40nVvjoLb6fm8xFfqqzx6NbiOixg/exec";
+/* ▲▲ 例: https://script.google.com/macros/s/AKfyc.../exec ▲▲ */
+const STUDY_GROUPS = {
+  A:{name:"A群（通常版・ペア学習）", pair:true},
+  B:{name:"B群（通常版・個別学習）", pair:false},
+  C:{name:"C群（ゲーム版・個別学習）", pair:false}
+};
+const STUDY = (new URLSearchParams(location.search).get("study") || "").trim().toUpperCase();
+const STUDY_ON = Object.prototype.hasOwnProperty.call(STUDY_GROUPS, STUDY);
+const PAIR_ID = STUDY_ON && STUDY_GROUPS[STUDY].pair;
+
 
 /* ---------------- 分類（電球の色） ---------------- */
 const CATS = {
@@ -436,7 +469,8 @@ function defaultState(){
     createdAt:new Date().toISOString(), updatedAt:null,
     crit:{}, practice:{tate:false, yoko:false},
     retryShown:false, perfectPraised:false,
-    tests:{pre:null, post:null}, events:[]};
+    tests:{pre:null, post:null}, events:[],
+    sid:null, sessionId:null, sentCount:0, lastSentAt:null};
   Object.keys(CRITERIA).forEach(k=>{ st.crit[k] = {quiz:null, challenge:null, quizFirst:null, chalFirst:null, quizTry:0, chalTry:0}; });
   return st;
 }
@@ -456,6 +490,10 @@ function mergeState(st){
   if(!st.practice) st.practice = d.practice;
   if(!st.tests) st.tests = {pre:null, post:null};
   if(!Array.isArray(st.events)) st.events = [];
+  if(st.sid===undefined) st.sid = null;
+  if(!st.sessionId) st.sessionId = null;
+  if(typeof st.sentCount !== "number") st.sentCount = 0;
+  if(st.lastSentAt===undefined) st.lastSentAt = null;
   return st;
 }
 function save(){
@@ -1731,6 +1769,7 @@ function renderLog(){
       練習：縦読み${S.practice.tate?"✅":"─"} 横読み${S.practice.yoko?"✅":"─"} ／ 記録イベント数 ${S.events.length}件<br>
       はじめた日：${S.createdAt?S.createdAt.slice(0,10):"─"} ／ 最終更新：${S.updatedAt?S.updatedAt.slice(0,16).replace("T"," "):"─"}</div>
   </div>
+  ${studyCardHTML()}
   <div class="card">
     <div class="h2">💾 学習ログの保存と引きつぎ</div>
     <p class="small" style="margin-bottom:10px;">「ダウンロード」でログファイル（JSON）を保存。次に使うときに「インポート」で読みこむと、続きから学習できます。</p>
@@ -1810,12 +1849,188 @@ function doReset(){
   toast("まっさらになりました！");
 }
 
+
+/* =====================================================================
+   研究用：ID入力と学習ログの送信
+   ===================================================================== */
+function newSessionId(){ return "s" + Date.now().toString(36) + Math.random().toString(36).slice(2,8); }
+
+/* 閉じられないモーダル（ID入力用） */
+function openModalLocked(html){
+  const r = document.getElementById("modal-root");
+  r.innerHTML = `<div class="mback"></div><div class="mbox">${html}</div>`;
+  r.classList.add("show","locked");
+}
+function closeModalLocked(){
+  document.getElementById("modal-root").classList.remove("show","locked");
+}
+
+function askStudyId(){
+  const g = S.sid || {};
+  const opt = (n, sel, unit) => Array.from({length:n}, (_,i)=>
+    `<option value="${i+1}" ${String(sel)===String(i+1)?"selected":""}>${i+1}${unit}</option>`).join("");
+  const numField = (id, label, val) =>
+    `<div class="sidfield"><label>${label}</label>
+       <input type="number" id="${id}" inputmode="numeric" min="1" max="50" placeholder="番号" value="${val||""}"></div>`;
+  openModalLocked(`
+    <div style="text-align:center; font-size:38px;">📋</div>
+    <div class="h1" style="text-align:center; font-size:20px;">はじめに入力してください</div>
+    <p style="text-align:center; margin-top:6px;"><span class="studychip">${STUDY_GROUPS[STUDY].name}</span></p>
+    <div class="sidform">
+      <div class="sidrow">
+        <div class="sidfield"><label>学年</label>
+          <select id="sid-grade"><option value="">えらぶ</option>${opt(3, g.grade, "年")}</select></div>
+        <div class="sidfield"><label>クラス</label>
+          <select id="sid-cls"><option value="">えらぶ</option>${opt(9, g.cls, "組")}</select></div>
+      </div>
+      <div class="sidrow">
+        ${PAIR_ID
+          ? numField("sid-no1","出席番号（1人目）", g.no1) + numField("sid-no2","出席番号（2人目）", g.no2)
+          : numField("sid-no1","出席番号", g.no1)}
+      </div>
+      <div class="siderr" id="sid-err"></div>
+      <div class="sidnote">📨 学習のきろく（得点や操作）は先生に送られます。<b>名前は送りません。</b>${PAIR_ID?"<br>2人で1台を使うので、2人分の出席番号を入れてください。":""}</div>
+      <button class="btn wide pink" style="margin-top:12px;" onclick="setStudyId()">はじめる</button>
+    </div>`);
+  setTimeout(()=>{ const el=document.getElementById("sid-grade"); if(el) el.focus(); }, 120);
+}
+
+function setStudyId(){
+  const err = document.getElementById("sid-err");
+  const grade = document.getElementById("sid-grade").value;
+  const cls = document.getElementById("sid-cls").value;
+  const no1 = document.getElementById("sid-no1").value.trim();
+  const no2El = document.getElementById("sid-no2");
+  const no2 = no2El ? no2El.value.trim() : "";
+  const okNum = v => v !== "" && Number(v) >= 1 && Number(v) <= 50;
+  if(!grade || !cls){ err.textContent = "学年とクラスをえらんでください"; return; }
+  if(!okNum(no1)){ err.textContent = "出席番号を1〜50で入れてください"; return; }
+  if(PAIR_ID){
+    if(!okNum(no2)){ err.textContent = "2人目の出席番号を1〜50で入れてください"; return; }
+    if(no1 === no2){ err.textContent = "1人目と2人目の出席番号が同じです"; return; }
+  }
+  S.sid = {grade:Number(grade), cls:Number(cls), no1:Number(no1), no2: PAIR_ID?Number(no2):null, group:STUDY};
+  if(!S.sessionId) S.sessionId = newSessionId();
+  save(); logEv("sid_set", {group:STUDY, grade:S.sid.grade, cls:S.sid.cls});
+  closeModalLocked();
+  const who = PAIR_ID ? `${S.sid.no1}番・${S.sid.no2}番` : `${S.sid.no1}番`;
+  toast(`${S.sid.grade}年${S.sid.cls}組 ${who} でスタート！`);
+  sendLog(false);
+  if(typeof showStory === "function" && S.game && !S.game.storySeen) setTimeout(showStory, 500);
+  renderScore();
+}
+
+/* 送信データの組み立て（新しいイベントのみ差分送信） */
+function buildPayload(){
+  const crit = {};
+  Object.entries(S.crit).forEach(([k,v])=>{
+    crit[k] = {quizFirst:v.quizFirst, chalFirst:v.chalFirst, quiz:v.quiz, challenge:v.challenge,
+               quizTry:v.quizTry, chalTry:v.chalTry};
+  });
+  const from = S.sentCount || 0;
+  return {
+    study: STUDY, edition: APP_EDITION,
+    sid: S.sid, sessionId: S.sessionId,
+    firstScore: (typeof firstScore === "function" ? firstScore() : null),
+    score: totalScore(),
+    allDone: allBulbsDone(),
+    practice: S.practice,
+    crit: crit,
+    createdAt: S.createdAt, updatedAt: S.updatedAt,
+    eventFrom: from, events: S.events.slice(from), eventTotal: S.events.length,
+    clientAt: new Date().toISOString()
+  };
+}
+
+let _sending = false, _pending = false, _pendingManual = false;
+async function sendLog(manual){
+  if(!STUDY_ON || !S.sid) return;
+  if(!GAS_URL){
+    if(manual) toast("⚠️ 送信先が設定されていません（先生用：GAS_URL）", 3200);
+    return;
+  }
+  /* 送信中に呼ばれたら、取りこぼさないよう終了後に送り直す */
+  if(_sending){ _pending = true; if(manual){ _pendingManual = true; toast("📨 送信中です…"); } return; }
+  if(!manual && (S.sentCount || 0) >= S.events.length) return;   /* 新しい記録がなければ送らない */
+  _sending = true;
+  const n = S.events.length;
+  const payload = buildPayload();
+  try{
+    await fetch(GAS_URL, {
+      method: "POST",
+      headers: {"Content-Type": "text/plain;charset=utf-8"},  /* CORSプリフライトを避ける */
+      body: JSON.stringify(payload)
+    });
+    S.sentCount = n; S.lastSentAt = new Date().toISOString(); save();
+    if(manual) toast("✅ 先生に送信しました");
+    if(screenName === "log") renderLog();
+  }catch(e){
+    if(manual) toast("⚠️ 送信できませんでした。電波を確認して、もう一度お試しください", 3600);
+  }finally{
+    _sending = false;
+    /* 送信中に増えた記録や、待たされた要求があれば続けて送る */
+    const more = _pending || (S.sentCount || 0) < S.events.length;
+    const m = _pendingManual;
+    _pending = false; _pendingManual = false;
+    if(more) setTimeout(()=>sendLog(m), 400);
+  }
+}
+
+/* 自動送信：60秒ごと＋画面を閉じるとき */
+function startAutoSend(){
+  if(!STUDY_ON) return;
+  setInterval(()=>sendLog(false), 60000);
+  window.addEventListener("pagehide", ()=>{
+    try{
+      if(!GAS_URL || !S.sid) return;
+      if((S.sentCount || 0) >= S.events.length) return;
+      const blob = new Blob([JSON.stringify(buildPayload())], {type:"text/plain;charset=utf-8"});
+      navigator.sendBeacon(GAS_URL, blob);
+    }catch(e){}
+  });
+}
+
+/* 送信内容の確認（先生・生徒への透明性のため） */
+function showPayloadPreview(){
+  const p = buildPayload();
+  const pretty = JSON.stringify(p, null, 1);
+  const head = pretty.length > 4000 ? pretty.slice(0, 4000) + "\n…（以下省略）" : pretty;
+  openModal(`<div class="h2">📨 送信される内容</div>
+    <p class="small" style="margin:8px 0;">氏名は含まれません。学年・クラス・出席番号と、学習の得点・操作の記録が送られます。</p>
+    <pre style="background:#f8fafc; border:1px solid var(--line); border-radius:10px; padding:12px;
+      font-size:11px; line-height:1.6; overflow-x:auto; white-space:pre-wrap; word-break:break-all;">${esc(head)}</pre>`);
+}
+
+/* きろく画面に出す研究用カード */
+function studyCardHTML(){
+  if(!STUDY_ON) return "";
+  const sid = S.sid;
+  const who = sid ? (sid.no2 ? `${sid.no1}番・${sid.no2}番` : `${sid.no1}番`) : "未入力";
+  const unsent = Math.max(0, S.events.length - (S.sentCount || 0));
+  const last = S.lastSentAt ? S.lastSentAt.slice(0,16).replace("T"," ") : "まだ送信していません";
+  return `<div class="card" style="border:3px solid var(--accent2);">
+    <div class="h2">📨 研究用：先生へのきろくの送信</div>
+    <div class="small" style="line-height:2;">
+      <b>${esc(STUDY_GROUPS[STUDY].name)}</b><br>
+      ${sid ? `${sid.grade}年 ${sid.cls}組 ${who}` : "IDが未入力です"}
+      <a href="#" style="font-size:12px;" onclick="askStudyId();return false;">変更</a><br>
+      最終送信：${last}／未送信の記録：${unsent}件
+      ${GAS_URL ? "" : '<br><b style="color:#dc2626;">※送信先URLが未設定です（先生用の設定が必要）</b>'}
+    </div>
+    <button class="btn wide" style="margin-top:10px;" onclick="sendLog(true)">📨 いま送信する</button>
+    <button class="btn ghost wide" style="margin-top:8px;" onclick="showPayloadPreview()">🔍 送信される内容を見る</button>
+  </div>`;
+}
+
 /* =====================================================================
    起動
    ===================================================================== */
 logEv("app_open");
 go("home");
-if(!S.name && S.events.filter(e=>e.type==="app_open").length<=1){
+if(STUDY_ON){
+  startAutoSend();
+  if(!S.sid) setTimeout(askStudyId, 400);
+} else if(!S.name && S.events.filter(e=>e.type==="app_open").length<=1){
   setTimeout(askName, 700);
 } else if(preGateLocked()){
   setTimeout(promptPretest, 700);
