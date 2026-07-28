@@ -383,7 +383,12 @@ const CRITERIA = {
     statement:"システマティックレビューやメタ分析は、信頼性がある研究方法である。", answer:true,
     expl:"研究手法によって論文の信頼度が変わります。「メタ分析」は、たくさんの論文の分析結果をさらに分析する方法なので、信頼性の高い手法です。",
     challenge:{q:"信頼性の高い「メタ分析」とは、具体的にどのような方法で結論を出すのでしょうか？",
-      choices:["複数の論文のデータを集めて、統合して分析する","一人の専門家の個人的な体験談をまとめる","実験室で条件を制御した実験を行う","アンケート結果だけを集計する"], correct:0}}
+      choices:["複数の論文のデータを集めて、統合して分析する","一人の専門家の個人的な体験談をまとめる","実験室で条件を制御した実験を行う","アンケート結果だけを集計する"], correct:0}},
+  expect:{cat:"what", name:"不可能な期待（完全な証明の要求）", manga:["expect.png"],
+    statement:"ワクチンが「100％安全」と完全に証明されていない以上、そのワクチンは危険だと考えるべきだ。", answer:false,
+    expl:"科学の知識には、つねに検証の余地（少しの不確かさ）が残ります。それは弱点ではなく、新しい証拠が出ればよりよく更新できる科学の強みです。「100％安全とは完全には証明できない」ことを理由に、多くの証拠で安全性が確かめられたものまで『危険だ・ニセモノだ』と決めつけるのは、『不可能な期待』というあやまりです。大切なのは“100％の完全な証明があるか”ではなく、“証拠がどれだけそろっているか”で判断することです。",
+    challenge:{q:"「ワクチンは100％安全だと完全には証明されていないから、危険だ」という意見の、どこがまちがっていますか。",
+      choices:["科学に少しの不確かさが残るのは当たり前で、多くの証拠で安全性が確かめられていれば信頼してよいから","科学は一度発表したら、ぜったいに変えてはいけないから","完全に証明できない話でも、証拠が少ないまま何でも信じるべきだから","たくさんの人が反対していれば、それだけで危険だと証明されるから"], correct:0}}
 };
 
 /* ---------------- グラフSVG ---------------- */
@@ -553,8 +558,8 @@ function retryUnlockModal(){
   sfx("rank");
   openModal(`<div style="font-size:48px; text-align:center;">🔓🔥</div>
     <div class="h1" style="text-align:center;">再チャレンジ 解放！</div>
-    <p style="text-align:center; font-size:15px; font-weight:800; margin-top:8px;">6つの事件をすべてやり終えた！<br>初回チャレンジの得点：<span style="font-size:22px; color:var(--accent2);">${firstScore()}点</span>／100点</p>
-    <p style="font-size:14px; line-height:2; margin-top:10px;">ここからは<b>再チャレンジ</b>ができるよ。半灯・点灯の電球をもう一度クリックして、まちがえた問題に再挑戦！得点を加算して<b>100点満点</b>を目指そう。初回の得点は「きろく」にちゃんと残るから安心してね。</p>
+    <p style="text-align:center; font-size:15px; font-weight:800; margin-top:8px;">6つの事件をすべてやり終えた！<br>初回チャレンジの得点：<span style="font-size:22px; color:var(--accent2);">${firstScore()}点</span>／105点</p>
+    <p style="font-size:14px; line-height:2; margin-top:10px;">ここからは<b>再チャレンジ</b>ができるよ。半灯・点灯の電球をもう一度クリックして、まちがえた問題に再挑戦！得点を加算して<b>105点満点</b>を目指そう。初回の得点は「きろく」にちゃんと残るから安心してね。</p>
     <button class="btn wide pink" style="margin-top:10px;" onclick="closeModal();go('news')">🔥 再チャレンジへ！</button>`);
 }
 /* 全電球消灯（100点）の称賛 */
@@ -563,7 +568,7 @@ function grandPraiseModal(){
   logEv("perfect_all",{first:fs, now:totalScore()});
   sfx("perfect"); confetti(90);
   openModal(`<div style="font-size:54px; text-align:center;">🏆✨</div>
-    <div class="h1" style="text-align:center;">100点満点 達成！！</div>
+    <div class="h1" style="text-align:center;">105点満点 達成！！</div>
     <div style="background:#fdf2f8; border-radius:14px; padding:14px; margin:14px 0; text-align:center; font-size:16px; font-weight:800;">
       初回チャレンジ ${fs}点 → <span style="color:var(--accent2); font-size:24px;">${totalScore()}点</span>
       ${diff>0?`<div style="margin-top:6px; color:#059669; font-size:18px;">＋${diff}点もアップ！🎉</div>`:""}
@@ -590,7 +595,7 @@ function catScore(catId){
   return {ok, all};
 }
 function renderScore(){
-  document.getElementById("scorebox").textContent = "⭐ " + totalScore() + "点／100点" + (allBulbsDone() ? "（初回 " + firstScore() + "点）" : "");
+  document.getElementById("scorebox").textContent = "⭐ " + totalScore() + "点／105点" + (allBulbsDone() ? "（初回 " + firstScore() + "点）" : "");
   const rb = document.getElementById("rankbox");
   if(rb) rb.textContent = RANKS[rankIndex()].icon + " " + RANKS[rankIndex()].name;
 }
@@ -760,7 +765,7 @@ const NEWS = [
 },
 {
   id:"vaccine", icon:"💉", title:"ワクチン", mode:"yoko", tab:"友人B",
-  bulbs:["echo","method"],
+  bulbs:["echo","method","expect"],
   sources:[
     {id:"mhlw", tab:"厚生労働省", page(){ return `<div class="srcpage">
       <div class="govlogo"><span class="gl">🏥</span><span><span class="gt">厚生労働省</span><br><span class="ge">ひと、くらし、みらいのために ─ Ministry of Health, Labour and Welfare</span></span></div>
@@ -784,6 +789,7 @@ const NEWS = [
     ${cmt("友人BのフォロワーD","ワクチンにマイクロチップが入っていて、人々を管理するらしいよ。")}
     ${cmt("フォロワーDのフォロワーE","ワクチンを打つと体内に長期間成分が残り、遺伝情報が書き換えられるうわさもあるし…")}
     ${cmt("親友Cの親友F","ワクチンによって高齢者が新型コロナに感染したうわさもあるから、みんなで協力して反対運動をしよう。")}
+    ${cmt("フォロワーG",`そもそもワクチンが100%安全だと完全に証明されたわけじゃないよね？絶対に副作用ゼロと言い切れないなら、やっぱり危険ってこと。${B("expect")}`)}
     ${cmt("User-B","ワクチンは安全だよ。デマを信じないで。")}
     ${cmt("友人B",`<span style="color:#3b6ea5;">@User-B</span>こそおかしい。これだけ多くの人が「ワクチンは危険だ」と言ってるのに。退場！！！${B("echo")}`)}
     ${endBtn()}
@@ -956,7 +962,7 @@ function renderHome(){
     <p style="margin-top:10px; font-size:14.5px; opacity:.95; line-height:1.9;">科学に関する情報が本当かどうかを見抜く力を付けよう！</p>
     <div style="margin-top:12px; display:flex; justify-content:center; gap:14px; flex-wrap:wrap; font-size:12.5px; font-weight:700;">
       <span style="background:rgba(255,255,255,.2); border-radius:999px; padding:5px 14px;">調査員：${S.name?esc(S.name):"未登録"} <a href="#" style="color:#fff;" onclick="askName();return false;">✏️</a></span>
-      <span style="background:rgba(255,255,255,.2); border-radius:999px; padding:5px 14px;">⭐ ${totalScore()}点／100点</span>
+      <span style="background:rgba(255,255,255,.2); border-radius:999px; padding:5px 14px;">⭐ ${totalScore()}点／105点</span>
       <span style="background:rgba(255,255,255,.28); border-radius:999px; padding:5px 14px;">${RANKS[rankIndex()].icon} ${RANKS[rankIndex()].name}</span>
     </div>
     <div style="margin-top:10px; font-size:12.5px; font-weight:700; opacity:.95; text-align:center;">${nextRankText()}</div>
@@ -1059,14 +1065,14 @@ function renderLearn(){
     <div class="h2">2. 得点の集計方法</div>
     <p style="font-size:14px; line-height:2;">
       1つの電球には<b>クイズ</b>と<b>チャレンジ問題</b>の2問があります。クイズ正解で<b>2点</b>、チャレンジ問題正解で<b>3点</b>（1つの電球で5点）。<br>
-      電球は全部で20個 → <b>100点満点</b>！
+      電球は全部で21個 → <b>105点満点</b>！
     </p>
     <table class="logt" style="margin-top:8px;">
       <tr><th>2問とも正解</th><td>電球が<b>消灯</b> ${miniBulb("how","off")}</td></tr>
       <tr><th>1問だけ正解</th><td>電球が<b>半灯</b> ${miniBulb("how","half")}</td></tr>
       <tr><th>2問とも不正解</th><td>電球は<b>点灯のまま</b> ${miniBulb("how","lit")}</td></tr>
     </table>
-    <p style="margin-top:12px; font-size:16px; font-weight:800; color:var(--accent2); background:#fdf2f8; border-radius:12px; padding:12px 14px; line-height:2;">6つの教材をすべて終えると「再チャレンジ」が解放！半灯・点灯の電球（まちがえた問題）にもう一度挑戦して、得点を積み上げ、100点満点を目指そう。初回チャレンジの得点も、きちんと記録に残るよ！</p>
+    <p style="margin-top:12px; font-size:16px; font-weight:800; color:var(--accent2); background:#fdf2f8; border-radius:12px; padding:12px 14px; line-height:2;">6つの教材をすべて終えると「再チャレンジ」が解放！半灯・点灯の電球（まちがえた問題）にもう一度挑戦して、得点を積み上げ、105点満点を目指そう。初回チャレンジの得点も、きちんと記録に残るよ！</p>
   </div>
   <div class="card">
     <div class="h2">3. 電球の色（チェックポイントの分類）</div>
@@ -1557,7 +1563,7 @@ function mangaHTML(cr){
   let h = "";
   cr.manga.forEach((m,i)=>{
     if(i===1 && cr.between) h += `<div style="background:#eef2ff; border-radius:10px; padding:10px 14px; margin-top:12px; font-size:14px; font-weight:700; line-height:1.9;">${esc(cr.between)}</div>`;
-    h += `<img src="${PIC}${m}" alt="解説漫画" loading="lazy">`;
+    h += `<img src="${PIC}${m}" alt="解説漫画" loading="lazy" onerror="this.style.display='none'">`;
   });
   return h;
 }
@@ -1807,7 +1813,7 @@ function renderLog(){
   $main.innerHTML = `
   <div class="card">
     <div class="h2">🕵️ 調査員：${S.name?esc(S.name):"（未設定）"} <a href="#" style="font-size:12px;" onclick="askName();return false;">変更</a></div>
-    <div class="small">合計 <b style="color:#b45309;">⭐${totalScore()}点／100点</b>${allBulbsDone()?`　🔥 初回チャレンジ ${firstScore()}点 → 現在 ${totalScore()}点`:""}
+    <div class="small">合計 <b style="color:#b45309;">⭐${totalScore()}点／105点</b>${allBulbsDone()?`　🔥 初回チャレンジ ${firstScore()}点 → 現在 ${totalScore()}点`:""}
       ─ What ${w.ok}/${w.all}点 ・ Who ${h.ok}/${h.all}点 ・ How ${o.ok}/${o.all}点<br>
       練習：縦読み${S.practice.tate?"✅":"─"} 横読み${S.practice.yoko?"✅":"─"} ／ 記録イベント数 ${S.events.length}件<br>
       はじめた日：${S.createdAt?S.createdAt.slice(0,10):"─"} ／ 最終更新：${S.updatedAt?S.updatedAt.slice(0,16).replace("T"," "):"─"}</div>
@@ -2004,7 +2010,7 @@ const ACH = [
   {id:"tate_master",icon:"⬇️", name:"縦読みマスター",   desc:"縦読み3事件を最後まで読んだ", cond:()=>NEWS.filter(n=>n.mode==="tate").every(n=>S.game.tate[n.id])},
   {id:"yoko_master",icon:"➡️", name:"横読みマスター",   desc:"横読み3事件で全タブを開いた", cond:()=>NEWS.filter(n=>n.mode==="yoko").every(n=>S.game.yoko[n.id])},
   {id:"all_solve",  icon:"🎖️", name:"全事件解決",      desc:"6つの事件すべてに回答", cond:()=>allBulbsDone()},
-  {id:"score400",   icon:"👑", name:"満点探偵",        desc:"100点満点を達成", cond:()=>totalScore()>=100}
+  {id:"score400",   icon:"👑", name:"満点探偵",        desc:"105点満点を達成", cond:()=>totalScore()>=105}
 ];
 function checkAch(){
   let delay = 0;
