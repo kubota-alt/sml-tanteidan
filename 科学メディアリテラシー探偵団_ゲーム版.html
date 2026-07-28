@@ -255,8 +255,8 @@ const PREPOST_ENABLED = false;     /* ←プレポストテストの有無（tru
 const PIC = "pic/";
 
 /* =====================================================================
-   研究用モード（URLに ?study=A / B / C が付いたときだけ有効）
-   A＝通常版ペア（出席番号2名）／B＝通常版個別／C＝ゲーム版個別
+   研究用モード（URLに ?study=A / B / C / D が付いたときだけ有効）
+   A＝通常版ペア（出席番号2名）／B＝通常版個別／C＝ゲーム版個別／D＝ゲーム版ペア（出席番号2名）
    パラメータが無い場合は一般公開版として動作し、送信は一切行わない。
    ===================================================================== */
 const APP_EDITION = "ゲーム版";
@@ -266,7 +266,8 @@ const GAS_URL = "https://script.google.com/macros/s/AKfycbzIuj4XH5w2P8BLkMAQHDfv
 const STUDY_GROUPS = {
   A:{name:"A群（通常版・ペア学習）", pair:true},
   B:{name:"B群（通常版・個別学習）", pair:false},
-  C:{name:"C群（ゲーム版・個別学習）", pair:false}
+  C:{name:"C群（ゲーム版・個別学習）", pair:false},
+  D:{name:"D群（ゲーム版・ペア学習）", pair:true}
 };
 const STUDY = (new URLSearchParams(location.search).get("study") || "").trim().toUpperCase();
 const STUDY_ON = Object.prototype.hasOwnProperty.call(STUDY_GROUPS, STUDY);
@@ -1144,10 +1145,11 @@ function finishPracticeTate(){
   S.practice.tate = true; save(); logEv("practice_done",{kind:"tate"}); checkAch();
   openModal(`<div style="font-size:44px; text-align:center;">⬇️✨</div>
     <div class="h1" style="text-align:center;">縦読みの練習 クリア！</div>
-    <div style="background:#eef2ff; border-radius:12px; padding:14px; margin:14px 0; font-size:14px; line-height:2;">
-      <b>縦読みは、最後まで情報を確認する大切な方法です。</b><br>
-      ・最後まで確認せずにシェアしてはいけません。<br>
-      ・最後まで読む中で、怪しいポイントが見つかることも多いのです。
+    <div style="background:#eef2ff; border-radius:12px; padding:14px; margin:14px 0; font-size:14px; line-height:1.9; text-align:left;">
+      <b style="color:#4338ca;">◆ 縦読みとは</b><br>
+      ニュース記事やSNSの投稿は、最後まで読んで情報を確認します。「誰が」「どんな目的で」情報を出しているかも確認しましょう。<br><br>
+      <b style="color:#4338ca;">◆ 「100%」や「絶対」の問題</b><br>
+      科学の知識は、「今のところの最良の結論」であり、今後より正しい情報に更新される可能性があります。そのため、誠実な科学者が「100%」や「絶対」と言い切ることはまずありません。
     </div>
     <button class="btn wide pink" onclick="closeModal();startPractice('yoko')">➡️ 横読みの練習へ進む</button>
     <button class="btn ghost wide" style="margin-top:8px;" onclick="closeModal();go('practice')">練習メニューに戻る</button>`);
@@ -1212,10 +1214,12 @@ function finishPracticeYoko(){
 function showPracticeYokoDone(){
   openModal(`<div style="font-size:44px; text-align:center;">➡️✨</div>
     <div class="h1" style="text-align:center;">横読みの練習 クリア！</div>
-    <div style="background:#fce7f3; border-radius:12px; padding:14px; margin:14px 0; font-size:14px; line-height:2;">
-      <b>横読みは、今のサイトを離れて、新しいタブで検索する方法です。</b><br>
-      ・情報源（だれが言っているか）を確かめます。<br>
-      ・他のサイトで同じ話題があるかを確かめます。
+    <div style="background:#fce7f3; border-radius:12px; padding:14px; margin:14px 0; font-size:14px; line-height:1.9; text-align:left;">
+      <b style="color:#be185d;">◆ 横読みとは</b><br>
+      一つの情報源だけでなく、新しいタブを開いて他の情報源と比較します。例えば、記事のタイトルで検索して同じ情報があるかを確認する、発信者が誰かを確認する、元の情報と比較する、といった方法です。<br>
+      検索結果の先頭にはスポンサー企業の広告が表示されることもあるため、正しいサイトはどれかを見極めて考えましょう。<br><br>
+      <b style="color:#be185d;">◆ ファクトチェック</b><br>
+      プロのファクトチェッカーも、横読みの手法を使って確かめています。そのため、彼らが行ったファクトチェックの結果は信頼性が高い情報と言えます。
     </div>
     <p class="small" style="background:#fef2f2; border-radius:10px; padding:10px;">※ 本編の6つの教材では「検索結果の一覧」は出ません。ムラサキの文字をクリックすると、指定のページが新しいタブに表示されます。</p>
     <button class="btn wide pink" style="margin-top:10px;" onclick="closeModal();go('home')">ホームに戻る（教材にチャレンジ！）</button>
@@ -2052,6 +2056,8 @@ function askStudyId(){
   const g = S.sid || {};
   const opt = (n, sel, unit) => Array.from({length:n}, (_,i)=>
     `<option value="${i+1}" ${String(sel)===String(i+1)?"selected":""}>${i+1}${unit}</option>`).join("");
+  const gradeOpt = (sel) => [[1,"1年生（7年生）"],[2,"2年生（8年生）"],[3,"3年生（9年生）"]]
+    .map(([v,label])=>`<option value="${v}" ${String(sel)===String(v)?"selected":""}>${label}</option>`).join("");
   const numField = (id, label, val) =>
     `<div class="sidfield"><label>${label}</label>
        <input type="number" id="${id}" inputmode="numeric" min="1" max="50" placeholder="番号" value="${val||""}"></div>`;
@@ -2062,7 +2068,7 @@ function askStudyId(){
     <div class="sidform">
       <div class="sidrow">
         <div class="sidfield"><label>学年</label>
-          <select id="sid-grade"><option value="">えらぶ</option>${opt(3, g.grade, "年")}</select></div>
+          <select id="sid-grade"><option value="">えらぶ</option>${gradeOpt(g.grade)}</select></div>
         <div class="sidfield"><label>クラス</label>
           <select id="sid-cls"><option value="">えらぶ</option>${opt(9, g.cls, "組")}</select></div>
       </div>
