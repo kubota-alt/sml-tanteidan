@@ -1145,11 +1145,10 @@ function finishPracticeTate(){
   S.practice.tate = true; save(); logEv("practice_done",{kind:"tate"}); checkAch();
   openModal(`<div style="font-size:44px; text-align:center;">⬇️✨</div>
     <div class="h1" style="text-align:center;">縦読みの練習 クリア！</div>
-    <div style="background:#eef2ff; border-radius:12px; padding:14px; margin:14px 0; font-size:14px; line-height:1.9; text-align:left;">
-      <b style="color:#4338ca;">◆ 縦読みとは</b><br>
-      ニュース記事やSNSの投稿は、最後まで読んで情報を確認します。「誰が」「どんな目的で」情報を出しているかも確認しましょう。<br><br>
-      <b style="color:#4338ca;">◆ 「100%」や「絶対」の問題</b><br>
-      科学の知識は、「今のところの最良の結論」であり、今後より正しい情報に更新される可能性があります。そのため、誠実な科学者が「100%」や「絶対」と言い切ることはまずありません。
+    <div style="background:#eef2ff; border-radius:12px; padding:14px; margin:14px 0; font-size:14px; line-height:2;">
+      <b>縦読みは、最後まで情報を確認する大切な方法です。</b><br>
+      ・最後まで確認せずにシェアしてはいけません。<br>
+      ・最後まで読む中で、怪しいポイントが見つかることも多いのです。
     </div>
     <button class="btn wide pink" onclick="closeModal();startPractice('yoko')">➡️ 横読みの練習へ進む</button>
     <button class="btn ghost wide" style="margin-top:8px;" onclick="closeModal();go('practice')">練習メニューに戻る</button>`);
@@ -1214,12 +1213,10 @@ function finishPracticeYoko(){
 function showPracticeYokoDone(){
   openModal(`<div style="font-size:44px; text-align:center;">➡️✨</div>
     <div class="h1" style="text-align:center;">横読みの練習 クリア！</div>
-    <div style="background:#fce7f3; border-radius:12px; padding:14px; margin:14px 0; font-size:14px; line-height:1.9; text-align:left;">
-      <b style="color:#be185d;">◆ 横読みとは</b><br>
-      一つの情報源だけでなく、新しいタブを開いて他の情報源と比較します。例えば、記事のタイトルで検索して同じ情報があるかを確認する、発信者が誰かを確認する、元の情報と比較する、といった方法です。<br>
-      検索結果の先頭にはスポンサー企業の広告が表示されることもあるため、正しいサイトはどれかを見極めて考えましょう。<br><br>
-      <b style="color:#be185d;">◆ ファクトチェック</b><br>
-      プロのファクトチェッカーも、横読みの手法を使って確かめています。そのため、彼らが行ったファクトチェックの結果は信頼性が高い情報と言えます。
+    <div style="background:#fce7f3; border-radius:12px; padding:14px; margin:14px 0; font-size:14px; line-height:2;">
+      <b>横読みは、今のサイトを離れて、新しいタブで検索する方法です。</b><br>
+      ・情報源（だれが言っているか）を確かめます。<br>
+      ・他のサイトで同じ話題があるかを確かめます。
     </div>
     <p class="small" style="background:#fef2f2; border-radius:10px; padding:10px;">※ 本編の6つの教材では「検索結果の一覧」は出ません。ムラサキの文字をクリックすると、指定のページが新しいタブに表示されます。</p>
     <button class="btn wide pink" style="margin-top:10px;" onclick="closeModal();go('home')">ホームに戻る（教材にチャレンジ！）</button>
