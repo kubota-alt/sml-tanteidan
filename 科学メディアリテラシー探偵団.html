@@ -252,11 +252,14 @@ const GAS_URL = "https://script.google.com/macros/s/AKfycbzIuj4XH5w2P8BLkMAQHDfv
 const STUDY_GROUPS = {
   A:{name:"A群（通常版・ペア学習）", pair:true},
   B:{name:"B群（通常版・個別学習）", pair:false},
-  C:{name:"C群（ゲーム版・個別学習）", pair:false}
+  C:{name:"C群（ゲーム版・個別学習）", pair:false},
+  U:{name:"大学生版（個別学習）", pair:false, univ:true}   /* Bと同じ個別学習。IDは学部＋学籍番号 */
 };
 const STUDY = (new URLSearchParams(location.search).get("study") || "").trim().toUpperCase();
 const STUDY_ON = Object.prototype.hasOwnProperty.call(STUDY_GROUPS, STUDY);
 const PAIR_ID = STUDY_ON && STUDY_GROUPS[STUDY].pair;
+const UNIV_ID = STUDY_ON && !!STUDY_GROUPS[STUDY].univ;   /* 大学生版：学部＋学籍番号 */
+const FACULTIES = ["工学部","芸術学部","農学部","その他"];
 
 
 /* ---------------- 分類（電球の色） ---------------- */
@@ -1878,6 +1881,8 @@ function askStudyId(){
     `<option value="${i+1}" ${String(sel)===String(i+1)?"selected":""}>${i+1}${unit}</option>`).join("");
   const gradeOpt = (sel) => [[1,"1年生（7年生）"],[2,"2年生（8年生）"],[3,"3年生（9年生）"]]
     .map(([v,label])=>`<option value="${v}" ${String(sel)===String(v)?"selected":""}>${label}</option>`).join("");
+  const facOpt = (sel) => FACULTIES
+    .map(v=>`<option value="${v}" ${String(sel)===v?"selected":""}>${v}</option>`).join("");
   const numField = (id, label, val) =>
     `<div class="sidfield"><label>${label}</label>
        <input type="number" id="${id}" inputmode="numeric" min="1" max="50" placeholder="番号" value="${val||""}"></div>`;
@@ -1886,6 +1891,15 @@ function askStudyId(){
     <div class="h1" style="text-align:center; font-size:20px;">はじめに入力してください</div>
     <p style="text-align:center; margin-top:6px;"><span class="studychip">${STUDY_GROUPS[STUDY].name}</span></p>
     <div class="sidform">
+      ${UNIV_ID ? `
+      <div class="sidrow">
+        <div class="sidfield"><label>学部</label>
+          <select id="sid-fac"><option value="">えらぶ</option>${facOpt(g.faculty)}</select></div>
+      </div>
+      <div class="sidrow">
+        <div class="sidfield"><label>学籍番号</label>
+          <input type="text" id="sid-sno" inputmode="latin" autocomplete="off" maxlength="12" placeholder="例）12345678" value="${g.sno?esc(g.sno):""}"></div>
+      </div>` : `
       <div class="sidrow">
         <div class="sidfield"><label>学年</label>
           <select id="sid-grade"><option value="">えらぶ</option>${gradeOpt(g.grade)}</select></div>
@@ -1896,16 +1910,37 @@ function askStudyId(){
         ${PAIR_ID
           ? numField("sid-no1","出席番号（1人目）", g.no1) + numField("sid-no2","出席番号（2人目）", g.no2)
           : numField("sid-no1","出席番号", g.no1)}
-      </div>
+      </div>`}
       <div class="siderr" id="sid-err"></div>
-      <div class="sidnote">📨 学習のきろく（得点や操作）は先生に送られます。<br><b>名前は送りません。このきろくは成績とは関係ありません。</b>${PAIR_ID?"<br>2人で1台を使うので、2人分の出席番号を入れてください。":""}</div>
+      <div class="sidnote">📨 学習のきろく（得点や操作）は${UNIV_ID?"担当教員":"先生"}に送られます。<br><b>名前は送りません。このきろくは成績とは関係ありません。</b>${UNIV_ID?"<br>学籍番号は、この後の授業の記録と照合するためだけに使います。":""}${PAIR_ID?"<br>2人で1台を使うので、2人分の出席番号を入れてください。":""}</div>
       <button class="btn wide pink" style="margin-top:12px;" onclick="setStudyId()">はじめる</button>
     </div>`);
-  setTimeout(()=>{ const el=document.getElementById("sid-grade"); if(el) el.focus(); }, 120);
+  setTimeout(()=>{ const el=document.getElementById(UNIV_ID?"sid-fac":"sid-grade"); if(el) el.focus(); }, 120);
 }
 
+/* 大学生版：学部＋学籍番号 */
+function normSno(s){
+  return String(s||"").trim()
+    .replace(/[Ａ-Ｚａ-ｚ０-９]/g, c => String.fromCharCode(c.charCodeAt(0)-0xFEE0))
+    .replace(/[\s\-ー－]/g, "").toUpperCase();
+}
+function setStudyIdUniv(err){
+  const fac = document.getElementById("sid-fac").value;
+  const sno = normSno(document.getElementById("sid-sno").value);
+  if(!fac){ err.textContent = "学部をえらんでください"; return; }
+  if(!/^[0-9A-Z]{4,12}$/.test(sno)){ err.textContent = "学籍番号を半角の英数字4〜12文字で入れてください"; return; }
+  S.sid = {grade:null, cls:null, no1:null, no2:null, faculty:fac, sno:sno, group:STUDY};
+  if(!S.sessionId) S.sessionId = newSessionId();
+  save(); logEv("sid_set", {group:STUDY, faculty:fac});
+  closeModalLocked();
+  toast(`${fac} ${sno} でスタート！`);
+  sendLog(false);
+  if(typeof showStory === "function" && S.game && !S.game.storySeen) setTimeout(showStory, 500);
+  renderScore();
+}
 function setStudyId(){
   const err = document.getElementById("sid-err");
+  if(UNIV_ID) return setStudyIdUniv(err);
   const grade = document.getElementById("sid-grade").value;
   const cls = document.getElementById("sid-cls").value;
   const no1 = document.getElementById("sid-no1").value.trim();
@@ -2005,7 +2040,7 @@ function showPayloadPreview(){
   const pretty = JSON.stringify(p, null, 1);
   const head = pretty.length > 4000 ? pretty.slice(0, 4000) + "\n…（以下省略）" : pretty;
   openModal(`<div class="h2">📨 送信される内容</div>
-    <p class="small" style="margin:8px 0;">氏名は含まれません。学年・クラス・出席番号と、学習の得点・操作の記録が送られます。</p>
+    <p class="small" style="margin:8px 0;">氏名は含まれません。${UNIV_ID?"学部・学籍番号":"学年・クラス・出席番号"}と、学習の得点・操作の記録が送られます。</p>
     <pre style="background:#f8fafc; border:1px solid var(--line); border-radius:10px; padding:12px;
       font-size:11px; line-height:1.6; overflow-x:auto; white-space:pre-wrap; word-break:break-all;">${esc(head)}</pre>`);
 }
@@ -2015,13 +2050,15 @@ function studyCardHTML(){
   if(!STUDY_ON) return "";
   const sid = S.sid;
   const who = sid ? (sid.no2 ? `${sid.no1}番・${sid.no2}番` : `${sid.no1}番`) : "未入力";
+  const idLine = !sid ? "IDが未入力です"
+    : (UNIV_ID ? `${esc(sid.faculty||"")} ${esc(sid.sno||"")}` : `${sid.grade}年 ${sid.cls}組 ${who}`);
   const unsent = Math.max(0, S.events.length - (S.sentCount || 0));
   const last = S.lastSentAt ? S.lastSentAt.slice(0,16).replace("T"," ") : "まだ送信していません";
   return `<div class="card" style="border:3px solid var(--accent2);">
     <div class="h2">📨 研究用：先生へのきろくの送信</div>
     <div class="small" style="line-height:2;">
       <b>${esc(STUDY_GROUPS[STUDY].name)}</b><br>
-      ${sid ? `${sid.grade}年 ${sid.cls}組 ${who}` : "IDが未入力です"}
+      ${idLine}
       <a href="#" style="font-size:12px;" onclick="askStudyId();return false;">変更</a><br>
       最終送信：${last}／未送信の記録：${unsent}件
       ${GAS_URL ? "" : '<br><b style="color:#dc2626;">※送信先URLが未設定です（先生用の設定が必要）</b>'}
