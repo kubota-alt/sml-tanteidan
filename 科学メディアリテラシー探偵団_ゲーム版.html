@@ -260,6 +260,7 @@ const PIC = "pic/";
    パラメータが無い場合は一般公開版として動作し、送信は一切行わない。
    ===================================================================== */
 const APP_EDITION = "ゲーム版";
+const APP_VER = "20261123";   /* 教材の版。app_open の記録（その他の列）に ver=… として残る */
 /* ▼▼ 先生用：Google Apps ScriptのウェブアプリURLをここに貼り付けてください ▼▼ */
 const GAS_URL = "https://script.google.com/macros/s/AKfycbzIuj4XH5w2P8BLkMAQHDfvxOMYiYRItUa6jhOCTc40nVvjoLb6fm8xFfqqzx6NbiOixg/exec";
 /* ▲▲ 例: https://script.google.com/macros/s/AKfyc.../exec ▲▲ */
@@ -1590,6 +1591,8 @@ function answerQuiz(ans){
   document.getElementById("qpanel").scrollTop = 0;
 }
 function toChallenge(){
+  /* 解説を読み終えてチャレンジ問題を開いた時刻（fb＝クイズの解説から、chal-direct＝再チャレンジから） */
+  logEv("chal_open",{stage:stg.id, crit:stg.quiz.crit, kind:stg.quiz.step+" try="+(S.crit[stg.quiz.crit].chalTry+1)});
   stg.quiz.step = "chal";
   renderQuizPanel();
   document.getElementById("qpanel").scrollTop = 0;
@@ -2224,7 +2227,7 @@ function studyCardHTML(){
 /* =====================================================================
    起動
    ===================================================================== */
-logEv("app_open");
+logEv("app_open",{key:"ver="+APP_VER});
 go("home");
 if(STUDY_ON){
   startAutoSend();
