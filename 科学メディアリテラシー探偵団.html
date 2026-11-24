@@ -153,6 +153,10 @@ a.plink{text-decoration:underline;}
 .fbbox .fbtitle{text-align:center; font-weight:800; font-size:16px; text-decoration:underline; margin-bottom:8px;}
 .fbbox .fbtitle.good{color:#059669;}
 .fbbox .fbtitle.bad{color:#dc2626;}
+.fbbox .fbtitle.dk{color:#4338ca;}
+.dkrow{display:flex; justify-content:center; margin-top:10px;}
+.dkrow button{background:#fff; color:#4b5563; border:2px solid #9ca3af; border-radius:8px; padding:8px 18px; font-size:14px; font-weight:800; cursor:pointer;}
+.dkrow button:hover{background:#f3f4f6;}
 .fbbox .kh{text-align:center; font-weight:800; font-size:15px; margin:6px 0;}
 .fbbox .ktext{font-size:14px; line-height:2; margin-bottom:10px; white-space:pre-line;}
 .fbbox img{width:100%; border-radius:10px; display:block; margin-top:10px;}
@@ -246,7 +250,7 @@ const PIC = "pic/";
    パラメータが無い場合は一般公開版として動作し、送信は一切行わない。
    ===================================================================== */
 const APP_EDITION = "通常版";
-const APP_VER = "20261123";   /* 教材の版。app_open の記録（その他の列）に ver=… として残る */
+const APP_VER = "20261124";   /* 教材の版。app_open の記録（その他の列）に ver=… として残る */
 /* ▼▼ 先生用：Google Apps ScriptのウェブアプリURLをここに貼り付けてください ▼▼ */
 const GAS_URL = "https://script.google.com/macros/s/AKfycbzIuj4XH5w2P8BLkMAQHDfvxOMYiYRItUa6jhOCTc40nVvjoLb6fm8xFfqqzx6NbiOixg/exec";
 /* ▲▲ 例: https://script.google.com/macros/s/AKfyc.../exec ▲▲ */
@@ -436,8 +440,8 @@ const SVG_CHOCO = `
 function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
 function nl(s){ return esc(s).replace(/\n/g,"<br>"); }
 
-/* 電球SVG（state: "lit"=点灯 / "half"=半灯 / "off"=消灯） */
-function bulbSVG(catId, state){
+/* 電球SVG（state: "lit"=点灯 / "half"=半灯 / "off"=消灯、dk: クイズで「わからない」を選んだ電球に「？」を付ける） */
+function bulbSVG(catId, state, dk){
   const c = CATS[catId];
   let fill, rays="", stroke="#1f2937", op=1;
   if(state==="lit"){ fill=c.color;
@@ -448,6 +452,7 @@ function bulbSVG(catId, state){
   return `<svg viewBox="0 0 40 56" xmlns="http://www.w3.org/2000/svg">
     ${rays}
     <circle cx="20" cy="24" r="13" fill="${fill}" stroke="${stroke}" stroke-width="2.4" opacity="${op}"/>
+    ${dk?`<text x="20" y="30.5" text-anchor="middle" font-size="19" font-weight="900" fill="#1f2937" stroke="#fff" stroke-width="3.4" paint-order="stroke">?</text>`:""}
     <path d="M14 34 q6 4 12 0 l-1.5 8 h-9 z" fill="#fff" stroke="${stroke}" stroke-width="2"/>
     <line x1="15" y1="40" x2="25" y2="40" stroke="${stroke}" stroke-width="1.8"/>
     <line x1="15.5" y1="44" x2="24.5" y2="44" stroke="${stroke}" stroke-width="1.8"/>
@@ -519,9 +524,14 @@ function bulbState(critId){
   const n = (c.quiz===true?1:0) + (c.challenge===true?1:0);
   return n===2 ? "off" : n===1 ? "half" : "lit";
 }
+/* クイズの値：true=正解（2点）／"dk"=わからない（1点）／false=不正解（0点）／null=未回答 */
+const DK = "dk";
+function isDk(critId){ return S.crit[critId].quiz===DK; }
+function quizPt(v){ return v===true ? 2 : v===DK ? 1 : 0; }
+function quizMark(v){ return v===true ? "⭕" : v===DK ? "？" : v===false ? "❌" : "─"; }
 function totalScore(){
   let n=0;
-  Object.values(S.crit).forEach(c=>{ if(c.quiz===true)n+=2; if(c.challenge===true)n+=3; });
+  Object.values(S.crit).forEach(c=>{ n+=quizPt(c.quiz); if(c.challenge===true)n+=3; });
   return n;
 }
 /* 横読み解放条件（通常版）：縦読み3教材の全電球（2問）に回答済み */
@@ -529,10 +539,10 @@ function yokoUnlocked(){
   return NEWS.filter(n=>n.mode==="tate").every(n=>n.bulbs.every(cid=>S.crit[cid].quiz!==null && S.crit[cid].challenge!==null));
 }
 const YOKO_LOCK_MSG = "🔒 縦読み3教材の電球すべて（クイズとチャレンジ問題）に答えると、横読み教材に進めるよ！";
-/* 初回チャレンジの得点（クイズ2点・チャレンジ3点） */
+/* 初回チャレンジの得点（クイズ2点・わからない1点・チャレンジ3点） */
 function firstScore(){
   let n=0;
-  Object.values(S.crit).forEach(c=>{ if(c.quizFirst===true)n+=2; if(c.chalFirst===true)n+=3; });
+  Object.values(S.crit).forEach(c=>{ n+=quizPt(c.quizFirst); if(c.chalFirst===true)n+=3; });
   return n;
 }
 function retryGain(){
@@ -544,7 +554,7 @@ function retryUnlockModal(){
   openModal(`<div style="font-size:48px; text-align:center;">🔓🔥</div>
     <div class="h1" style="text-align:center;">再チャレンジ 解放！</div>
     <p style="text-align:center; font-size:15px; font-weight:800; margin-top:8px;">6つの教材をすべてやり終えた！<br>初回チャレンジの得点：<span style="font-size:22px; color:var(--accent2);">${firstScore()}点</span>／105点</p>
-    <p style="font-size:14px; line-height:2; margin-top:10px;">ここからは<b>再チャレンジ</b>ができるよ。半灯・点灯の電球をもう一度クリックして、まちがえた問題に再挑戦！得点を加算して<b>105点満点</b>を目指そう。初回の得点は「きろく」にちゃんと残るから安心してね。</p>
+    <p style="font-size:14px; line-height:2; margin-top:10px;">ここからは<b>再チャレンジ</b>ができるよ。半灯・点灯の電球をもう一度クリックして、まちがえた問題や「わからない」の問題に再挑戦！得点を加算して<b>105点満点</b>を目指そう。初回の得点は「きろく」にちゃんと残るから安心してね。</p>
     <button class="btn wide pink" style="margin-top:10px;" onclick="closeModal();go('news')">🔥 再チャレンジへ！</button>`);
 }
 /* 全電球消灯（100点）の称賛 */
@@ -573,7 +583,7 @@ function catScore(catId){
   Object.entries(CRITERIA).forEach(([id,c])=>{
     if(c.cat!==catId) return;
     all+=5;
-    if(S.crit[id].quiz===true) ok+=2;
+    ok+=quizPt(S.crit[id].quiz);
     if(S.crit[id].challenge===true) ok+=3;
   });
   return {ok, all};
@@ -1029,7 +1039,7 @@ function renderLearn(){
       <li>「6つの教材にチャレンジ！」からニュースを選びます。</li>
       <li><b>縦読み教材</b>：「・・・更に表示」をクリックして、コメントまで<b>最後までスクロール</b>すると、記事の中に電球💡が現れます。</li>
       <li><b>横読み教材</b>：<span style="color:var(--purple); font-weight:800;">ムラサキの文字</span>をクリックして「新しいタブを開いて検索」。<b>すべてのタブを開く</b>と電球💡が現れます。</li>
-      <li>電球をクリックすると、クイズ（はい・いいえ の2択）が出ます。答えると解説と漫画が読めます。</li>
+      <li>電球をクリックすると、クイズが出ます。「はい」「いいえ」で答えましょう。考えても分からないときは「わからない」を選べます。答えると解説と漫画が読めます。</li>
       <li>「チャレンジ問題！」（4択）にも挑戦しましょう。</li>
     </ol>
     <p style="font-size:12.5px; color:#555; margin:6px 2px 0;">※ 教材に出てくる投稿・人物・会社・大学・論文の多くは、学習用に作った架空のものです。官公庁などの実在の機関のページは、実際の内容をもとに作っています。</p>
@@ -1044,15 +1054,16 @@ function renderLearn(){
   <div class="card">
     <div class="h2">2. 得点の集計方法</div>
     <p style="font-size:14px; line-height:2;">
-      1つの電球には<b>クイズ</b>と<b>チャレンジ問題</b>の2問があります。クイズ正解で<b>2点</b>、チャレンジ問題正解で<b>3点</b>（1つの電球で5点）。<br>
+      1つの電球には<b>クイズ</b>と<b>チャレンジ問題</b>の2問があります。クイズ正解で<b>2点</b>（「わからない」は<b>1点</b>、不正解は0点）、チャレンジ問題正解で<b>3点</b>（1つの電球で5点）。<br>
       電球は全部で21個 → <b>105点満点</b>！
     </p>
     <table class="logt" style="margin-top:8px;">
       <tr><th>2問とも正解</th><td>電球が<b>消灯</b> ${miniBulb("how","off")}</td></tr>
       <tr><th>1問だけ正解</th><td>電球が<b>半灯</b> ${miniBulb("how","half")}</td></tr>
-      <tr><th>2問とも不正解</th><td>電球は<b>点灯のまま</b> ${miniBulb("how","lit")}</td></tr>
+      <tr><th>正解なし</th><td>電球は<b>点灯のまま</b> ${miniBulb("how","lit")}</td></tr>
+      <tr><th>クイズで「わからない」</th><td>電球に<b>「？」</b>が付く ${miniBulb("how","lit",true)}（チャレンジ問題に正解すると半灯 ${miniBulb("how","half",true)}）</td></tr>
     </table>
-    <p style="margin-top:12px; font-size:16px; font-weight:800; color:var(--accent2); background:#fdf2f8; border-radius:12px; padding:12px 14px; line-height:2;">6つの教材をすべて終えると「再チャレンジ」が解放！半灯・点灯の電球（まちがえた問題）にもう一度挑戦して、得点を積み上げ、105点満点を目指そう。初回チャレンジの得点も、きちんと記録に残るよ！</p>
+    <p style="margin-top:12px; font-size:16px; font-weight:800; color:var(--accent2); background:#fdf2f8; border-radius:12px; padding:12px 14px; line-height:2;">6つの教材をすべて終えると「再チャレンジ」が解放！半灯・点灯の電球（まちがえた問題や「わからない」の問題）にもう一度挑戦して、得点を積み上げ、105点満点を目指そう。初回チャレンジの得点も、きちんと記録に残るよ！</p>
   </div>
   <div class="card">
     <div class="h2">3. 電球の色（チェックポイントの分類）</div>
@@ -1066,8 +1077,8 @@ function renderLearn(){
   </div>
   <button class="btn wide pink" onclick="go('news')">📱 6つの教材にチャレンジ！</button>`;
 }
-function miniBulb(cat, state){
-  return `<span class="bslot" style="width:20px; height:27px;">${bulbSVG(cat,state)}</span>`;
+function miniBulb(cat, state, dk){
+  return `<span class="bslot" style="width:20px; height:27px;">${bulbSVG(cat,state,dk)}</span>`;
 }
 
 /* ---------------- 練習メニュー ---------------- */
@@ -1235,7 +1246,7 @@ function renderNewsMenu(){
   const yoko = NEWS.filter(n=>n.mode==="yoko");
   function newsCard(n){
     const locked = n.mode==="yoko" && !yokoUnlocked();
-    const bulbs = n.bulbs.map(cid=>`<span class="bslot" style="width:20px;height:27px;">${bulbSVG(CRITERIA[cid].cat, bulbState(cid))}</span>`).join("");
+    const bulbs = n.bulbs.map(cid=>`<span class="bslot" style="width:20px;height:27px;">${bulbSVG(CRITERIA[cid].cat, bulbState(cid), isDk(cid))}</span>`).join("");
     let ok=0; n.bulbs.forEach(cid=>{ if(S.crit[cid].quiz===true)ok++; if(S.crit[cid].challenge===true)ok++; });
     const rank = stageRank(n);
     const badge = rank ? `<span style="font-size:26px;" title="${rank==="gold"?"パーフェクト！":rank==="silver"?"クリア":"全問回答"}">${rank==="gold"?"🥇":rank==="silver"?"🥈":"🥉"}</span>` : "";
@@ -1252,7 +1263,7 @@ function renderNewsMenu(){
   <button class="btn ghost" onclick="go('home')">◀ ホームに戻る</button>
   <div class="card" style="margin-top:12px;">
     <div class="h1">📱 6つの教材にチャレンジ！</div>
-    <p class="small" style="margin-top:6px;">まずは<b>縦読み教材</b>から。クイズに正解して電球を消そう（2問正解で消灯・1問で半灯）。6つすべてを終えると、まちがえた電球への「再チャレンジ」が解放されるよ！</p>
+    <p class="small" style="margin-top:6px;">まずは<b>縦読み教材</b>から。クイズに正解して電球を消そう（2問正解で消灯・1問で半灯）。6つすべてを終えると、消えていない電球への「再チャレンジ」が解放されるよ！</p>
     <p class="small" style="margin-top:4px;">学習ランクバッジ：🥇＝全部の電球を消した（満点） ／ 🥈＝全部答えて得点あり ／ 🥉＝全部答えた</p>
   </div>
   <div class="h2" style="margin:4px 2px 10px;"><span class="tagline tate">縦読み教材</span>最後までスクロールして調べよう</div>
@@ -1269,7 +1280,7 @@ function stageRank(n){
   const done = n.bulbs.every(cid=>S.crit[cid].quiz!==null && S.crit[cid].challenge!==null);
   if(!done) return null;
   if(n.bulbs.every(cid=>bulbState(cid)==="off")) return "gold";
-  let ok=0; n.bulbs.forEach(cid=>{ if(S.crit[cid].quiz===true)ok++; if(S.crit[cid].challenge===true)ok++; });
+  let ok=0; n.bulbs.forEach(cid=>{ ok+=quizPt(S.crit[cid].quiz); if(S.crit[cid].challenge===true)ok++; });
   return ok>0 ? "silver" : "bronze";
 }
 
@@ -1426,7 +1437,7 @@ function updateStageBulbs(pop){
   const n = newsById(stg.id);
   document.querySelectorAll(".bslot.stage-b").forEach(el=>{
     const cid = el.dataset.crit;
-    el.innerHTML = bulbSVG(CRITERIA[cid].cat, bulbState(cid));
+    el.innerHTML = bulbSVG(CRITERIA[cid].cat, bulbState(cid), isDk(cid));
     if(el.dataset.bezel==="1") return;
     const show = stg.unlocked;
     el.classList.toggle("hidden-b", !show);
@@ -1465,11 +1476,13 @@ function renderQuizPanel(){
       <div class="ynrow">
         <button onclick="answerQuiz(true)">はい</button>
         <button onclick="answerQuiz(false)">いいえ</button>
-      </div>`;
+      </div>
+      ${S.crit[q.crit].quizTry===0 ? `<div class="dkrow"><button onclick="answerQuiz(DK)">わからない（解説で確かめる）</button></div>` : ""}`;
   }
   else if(q.step==="fb"){
     const correct = q.quizAnswer===cr.answer;
     const title = correct ? `<div class="fbtitle good">正解！解説を確認しよう。</div>`
+      : q.quizAnswer===DK ? `<div class="fbtitle dk">「わからない」（+1点）。解説で確かめよう。</div>`
       : `<div class="fbtitle bad">残念！解説を確認しよう。</div>`;
     html = `<div class="qhead">クイズ</div>
       <div class="qq"><span class="fing">👉</span><span>${esc(cr.statement)}<br><span style="font-size:12.5px; color:var(--sub);">正解は「<b>${cr.answer?"はい":"いいえ"}</b>」</span></span></div>
@@ -1484,7 +1497,7 @@ function renderQuizPanel(){
   }
   else if(q.step==="chal-direct"){
     html = `<div class="qhead">再チャレンジ</div>
-      <div class="qq"><span class="fing">👉</span><span>${esc(cr.statement)}<br><span style="font-size:12.5px; color:var(--sub);">クイズは${S.crit[q.crit].quiz===true?"正解":"回答"}ずみ（正解は「${cr.answer?"はい":"いいえ"}」）。チャレンジ問題に${S.crit[q.crit].chalTry>0?"再挑戦":"挑戦"}しよう！</span></span></div>
+      <div class="qq"><span class="fing">👉</span><span>${esc(cr.statement)}<br><span style="font-size:12.5px; color:var(--sub);">クイズは${S.crit[q.crit].quiz===true?"正解":isDk(q.crit)?"「わからない」で回答":"回答"}ずみ（正解は「${cr.answer?"はい":"いいえ"}」）。チャレンジ問題に${S.crit[q.crit].chalTry>0?"再挑戦":"挑戦"}しよう！</span></span></div>
       <button class="chalbtn" onclick="toChallenge()">チャレンジ問題！</button>
       <button class="closebtn" onclick="closeQuiz()">閉じる</button>`;
   }
@@ -1511,14 +1524,13 @@ function renderQuizPanel(){
   }
   else if(q.step==="locked"){
     const st = S.crit[q.crit];
-    const mk = v => v===true?"⭕":"❌";
     html = `<div class="qhead">回答ずみ</div>
-      <div class="qq"><span class="fing">👉</span><span>${esc(cr.statement)}<br><span style="font-size:12.5px; color:var(--sub);">クイズ ${mk(st.quiz)}　チャレンジ問題 ${mk(st.challenge)}（正解は「${cr.answer?"はい":"いいえ"}」）</span></span></div>
+      <div class="qq"><span class="fing">👉</span><span>${esc(cr.statement)}<br><span style="font-size:12.5px; color:var(--sub);">クイズ ${quizMark(st.quiz)}　チャレンジ問題 ${quizMark(st.challenge)}（正解は「${cr.answer?"はい":"いいえ"}」）</span></span></div>
       <div class="fbbox"><div class="kh">＜解説＞</div>
         <div class="ktext">${nl(cr.expl)}</div>
         ${mangaHTML(cr)}
       </div>
-      <div style="background:#eef2ff; border-radius:12px; padding:10px 14px; margin-top:12px; font-size:13px; font-weight:800; color:#4338ca; line-height:1.8;">🔒 まちがえた問題への再チャレンジは、6つの教材をすべて終えると解放されるよ！</div>
+      <div style="background:#eef2ff; border-radius:12px; padding:10px 14px; margin-top:12px; font-size:13px; font-weight:800; color:#4338ca; line-height:1.8;">🔒 まちがえた問題や「わからない」の問題への再チャレンジは、6つの教材をすべて終えると解放されるよ！</div>
       <button class="closebtn" onclick="closeQuiz()">閉じる</button>`;
   }
   else if(q.step==="done"){
@@ -1544,14 +1556,15 @@ function mangaHTML(cr){
 }
 function answerQuiz(ans){
   const q = stg.quiz, cr = CRITERIA[q.crit], st = S.crit[q.crit];
-  const correct = ans===cr.answer;
+  const dk = ans===DK, correct = ans===cr.answer;
   q.quizAnswer = ans;
   st.quizTry++;
-  st.quiz = correct;
-  if(st.quizTry===1) st.quizFirst = correct;
+  /* 「わからない」の後の再チャレンジでまちがえても、得点は下げない（「わからない」のまま） */
+  if(dk || correct || st.quiz!==DK) st.quiz = dk ? DK : correct;
+  if(st.quizTry===1) st.quizFirst = st.quiz;
   else if(correct) retryGain();
   save();
-  logEv("quiz_answer",{stage:stg.id, crit:q.crit, choice:ans?"yes":"no", correct, try:st.quizTry});
+  logEv("quiz_answer",{stage:stg.id, crit:q.crit, choice:dk?DK:ans?"yes":"no", correct:dk?undefined:correct, try:st.quizTry});
   q.step = "fb";
   renderQuizPanel(); renderScore(); updateStageBulbs();
   document.getElementById("qpanel").scrollTop = 0;
@@ -1611,13 +1624,13 @@ function closeQuiz(){
       if(allBulbsDone()){
         openModal(`<div style="font-size:48px; text-align:center;">🔁💪</div>
           <div class="h1" style="text-align:center;">おしい！あと${remain}個の電球が残っているよ</div>
-          <p style="font-size:14px; line-height:2; text-align:center; margin-top:10px;"><b style="color:var(--accent2);">再チャレンジして満点を目指そう！</b><br>半灯・点灯の電球をもう一度クリックすると、まちがえた問題に再挑戦できるよ。<br><span style="font-size:12.5px; color:var(--sub);">初回 ${firstScore()}点 → 現在 ${totalScore()}点</span></p>
+          <p style="font-size:14px; line-height:2; text-align:center; margin-top:10px;"><b style="color:var(--accent2);">再チャレンジして満点を目指そう！</b><br>半灯・点灯の電球をもう一度クリックすると、まちがえた問題や「わからない」の問題に再挑戦できるよ。<br><span style="font-size:12.5px; color:var(--sub);">初回 ${firstScore()}点 → 現在 ${totalScore()}点</span></p>
           <button class="btn wide pink" style="margin-top:12px;" onclick="closeModal()">🔁 再チャレンジする！</button>
           <button class="btn ghost wide" style="margin-top:8px;" onclick="closeModal();go('news')">ニュース選択に戻る</button>`);
       } else {
         openModal(`<div style="font-size:48px; text-align:center;">📋✅</div>
           <div class="h1" style="text-align:center;">この${'教材'}の電球ぜんぶに答えた！</div>
-          <p style="font-size:14px; line-height:2; text-align:center; margin-top:10px;">のこりの${'教材'}も調査しよう。<br><b>6つすべてを終えると、まちがえた問題への「再チャレンジ」が解放されるよ！</b></p>
+          <p style="font-size:14px; line-height:2; text-align:center; margin-top:10px;">のこりの${'教材'}も調査しよう。<br><b>6つすべてを終えると、消えていない電球への「再チャレンジ」が解放されるよ！</b></p>
           <button class="btn wide pink" style="margin-top:12px;" onclick="closeModal();go('news')">つぎへ進む！</button>
           <button class="btn ghost wide" style="margin-top:8px;" onclick="closeModal()">この記事をもう一度見る</button>`);
       }
@@ -1648,7 +1661,7 @@ function renderZukan(){
           const status = state==="off" ? "✅ 2問クリア" : state==="half" ? "あと1問！" : (st.quizTry+st.chalTry>0?"再挑戦しよう":"未挑戦");
           const bg = state==="off" ? "#fce7f3" : state==="half" ? "#fef9c3" : "#fff";
           return `<div class="zcard" style="background:${bg};" onclick="openZukanCard('${id}')">
-            <span class="bslot" style="width:24px;height:32px;">${bulbSVG(catId,state)}</span>
+            <span class="bslot" style="width:24px;height:32px;">${bulbSVG(catId,state,isDk(id))}</span>
             <div><div class="zn">${esc(cr.name)}</div><div class="zs">${status}</div></div>
           </div>`;}).join("")}
       </div>
@@ -1665,10 +1678,9 @@ function openZukanCard(id){
   const cr = CRITERIA[id];
   const st = S.crit[id];
   logEv("zukan_view",{crit:id});
-  const mark = v => v===true?"⭕":v===false?"❌":"─";
-  openModal(`<div style="text-align:center;">${miniBulb(cr.cat, bulbState(id))}</div>
+  openModal(`<div style="text-align:center;">${miniBulb(cr.cat, bulbState(id), isDk(id))}</div>
     <div class="h1" style="text-align:center; font-size:19px;">${esc(cr.name)}</div>
-    <p class="small" style="text-align:center;">分類：${CATS[cr.cat].label}（${esc(CATS[cr.cat].desc)}）／ クイズ ${mark(st.quiz)}・チャレンジ ${mark(st.challenge)}</p>
+    <p class="small" style="text-align:center;">分類：${CATS[cr.cat].label}（${esc(CATS[cr.cat].desc)}）／ クイズ ${quizMark(st.quiz)}・チャレンジ ${quizMark(st.challenge)}</p>
     <div style="background:#eef2ff; border-radius:12px; padding:14px; margin:12px 0; font-size:14px; line-height:2; white-space:pre-line;">${esc(cr.expl)}</div>
     ${mangaHTML(cr)}`);
 }
@@ -1775,8 +1787,7 @@ function renderLog(){
   renderScore();
   const critRows = Object.entries(CRITERIA).map(([id,cr])=>{
     const st = S.crit[id];
-    const mark = v => v===null?"─":(v?"⭕":"❌");
-    return `<tr><td>${miniBulb(cr.cat, bulbState(id))} ${esc(cr.name)}</td><td>${CATS[cr.cat].label}</td><td>${mark(st.quiz)}</td><td>${mark(st.challenge)}</td><td>${st.quizTry+st.chalTry}回</td></tr>`;
+    return `<tr><td>${miniBulb(cr.cat, bulbState(id), isDk(id))} ${esc(cr.name)}</td><td>${CATS[cr.cat].label}</td><td>${quizMark(st.quiz)}</td><td>${quizMark(st.challenge)}</td><td>${st.quizTry+st.chalTry}回</td></tr>`;
   }).join("");
   const pre = S.tests.pre, post = S.tests.post;
   const w = catScore("what"), h = catScore("who"), o = catScore("how");
@@ -1807,7 +1818,7 @@ function renderLog(){
     </table>
   </div>`:""}
   <div class="card">
-    <div class="h2">💡 電球ごとの記録（⭕=正解 ❌=不正解 ─=未挑戦）</div>
+    <div class="h2">💡 電球ごとの記録（⭕=正解 ？=わからない ❌=不正解 ─=未挑戦）</div>
     <table class="logt"><tr><th>チェックポイント</th><th>分類</th><th>クイズ</th><th>チャレンジ</th><th>挑戦</th></tr>${critRows}</table>
   </div>`;
 }
